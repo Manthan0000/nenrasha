@@ -1,7 +1,10 @@
 import { Box, Typography, Button } from "@mui/material";
+import Categories from '../components/Categories.jsx';
+import ProductsSection from '../components/ProductsSection';
 
 function Home(){
     return (
+        <>
         <Box sx={{minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center',textAlign: 'center',
             px: 2,
         }}>
@@ -17,6 +20,9 @@ function Home(){
                 </Button>
             </Box>
         </Box>
+        <Categories />
+        <ProductsSection />
+        </>
     );
 }
 export default Home;
