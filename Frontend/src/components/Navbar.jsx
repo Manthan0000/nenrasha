@@ -3,8 +3,15 @@ import {Link} from 'react-router-dom';
 
 function Navbar(){
     return (
-        <AppBar position="static" color="transparent" elevation={0}>
-            <Toolbar sx={{justifyContent: 'space-between'}}>
+        <AppBar position="static" elevation={0} sx={{
+            backgroundColor: '#fff',
+            borderBottom: '1px solid #eee',
+        }}>
+            <Toolbar sx={{
+                width: '100%',
+                mx: 'auto',
+                display: 'flex',
+                justifyContent: 'space-between'}}>
                 {/* Logo */}
                 <Typography variant="h6" component={Link} to="/" sx={{textDecoration: 'none', color: 'black', fontweight: 'bold'}}>Nenrasha</Typography>
                 {/*Menu*/}

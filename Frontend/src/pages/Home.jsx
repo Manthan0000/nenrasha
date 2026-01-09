@@ -1,6 +1,7 @@
 import { Box, Typography, Button } from "@mui/material";
 import Categories from '../components/Categories.jsx';
-import ProductsSection from '../components/ProductsSection';
+import ProductsSection from '../components/ProductsSection.jsx';
+import Container from '../components/Container.jsx';
 
 function Home(){
     return (
@@ -20,8 +21,12 @@ function Home(){
                 </Button>
             </Box>
         </Box>
-        <Categories />
-        <ProductsSection />
+        <Container>
+            <Categories />
+        </Container>
+        <Container>
+            <ProductsSection />
+        </Container>
         </>
     );
 }
