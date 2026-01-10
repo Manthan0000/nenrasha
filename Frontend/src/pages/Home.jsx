@@ -1,7 +1,9 @@
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, Grid} from "@mui/material";
 import Categories from '../components/Categories.jsx';
 import ProductsSection from '../components/ProductsSection.jsx';
 import Container from '../components/Container.jsx';
+import { products } from "../data/products.js";
+import ProductCard from "../components/ProductCard.jsx";
 
 function Home(){
     return (
@@ -21,12 +23,17 @@ function Home(){
                 </Button>
             </Box>
         </Box>
-        <Container>
-            <Categories />
-        </Container>
-        <Container>
-            <ProductsSection />
-        </Container>
+
+        <Categories />
+
+    <Grid container spacing={3} columns={12}>
+        {products.map((product) => (
+            <Grid key={product.id} gridColumn="span 3">
+                <ProductCard product={product} />
+            </Grid>
+        ))}
+    </Grid>
+        <ProductsSection />
         </>
     );
 }

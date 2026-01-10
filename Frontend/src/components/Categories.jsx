@@ -21,7 +21,7 @@ function Categories() {
 
         <Grid container spacing={7} justifyContent="center" sx={{ mt: 5 }}>
         {categories.map((category) => (
-            <Grid item key={category.name}>
+            <Grid key={category.name}>
             <Card
                 sx={{
                 width: 180,
