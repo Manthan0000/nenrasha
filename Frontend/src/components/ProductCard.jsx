@@ -1,65 +1,60 @@
-import {
-    Card,
-    CardMedia,
-    CardContent,
-    Typography,
-    Box,
-    Chip,
-    }from '@mui/material';
+import { Card, CardContent, Typography, Box } from "@mui/material";
+
 function ProductCard({ product }) {
     return (
         <Card
-        sx={{
-        borderRadius: 3,
-        boxShadow: 'none',
-        cursor: 'pointer',
-        }}
+            sx={{
+            borderRadius: 3,
+            boxShadow: "none",
+            }}
         >
-      {/* Image */}
-        <Box sx={{ position: 'relative' }}>
-        {product.isSale && (
-            <Chip
-                label="-25%"
-                color="error"
-                size="small"
-                sx={{
-                    position: 'absolute',
-                    top: 12,
-                    left: 12,
-                    zIndex: 1,
-                }}
-            />
-        )}
-
-        <CardMedia
-            component="img"
-            height="300"
-            image={product.image}
-            alt={product.name}
+        {/* IMAGE BOX */}
+        <Box
+            sx={{
+            position: "relative",
+            width: "100%",
+            height: 320, // 🔥 FIXED HEIGHT
+            overflow: "hidden",
+            borderRadius: 3,
+            backgroundColor: "#f5f5f5",
+            }}
+        >
+        <img
+            src={product.image}
+            alt={product.title}
+            style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover", // 🔥 MOST IMPORTANT
+            }}
         />
-        </Box>
 
-      {/* Content */}
-        <CardContent sx={{ px: 0 }}>
-        <Typography fontWeight="500">
-            {product.name}
-        </Typography>
-
-        <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
-            {product.oldPrice && (
-            <Typography
-                sx={{ textDecoration: 'line-through', color: '#999' }}
+        {product.isSale && (
+            <Box
+            sx={{
+                position: "absolute",
+                top: 12,
+                left: 12,
+                backgroundColor: "#e53935",
+                color: "#fff",
+                fontSize: 12,
+                px: 1.2,
+                py: 0.4,
+                borderRadius: 10,
+            }}
             >
-                ${product.oldPrice}
-            </Typography>
-            )}
-
-            <Typography fontWeight="bold">
-            ${product.price}
-            </Typography>
+            -25%
+            </Box>
+        )}
         </Box>
+
+      {/* CONTENT */}
+        <CardContent sx={{ px: 0 }}>
+        <Typography fontWeight={500}>{product.title}</Typography>
+
+        <Typography fontWeight={600}>${product.price}</Typography>
         </CardContent>
-        </Card>
+    </Card>
     );
 }
 
