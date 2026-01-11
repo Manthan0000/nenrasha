@@ -4,9 +4,11 @@ import Home from './pages/Home.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import Navbar from './components/Navbar.jsx';
+import TopBar from './components/TopBar.jsx';
 function App() {
   return (
     <div>
+      <TopBar />
       <Navbar />
       <Routes>
         <Route path='/' element={<Home />} />
