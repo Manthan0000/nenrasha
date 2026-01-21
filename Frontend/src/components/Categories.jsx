@@ -1,50 +1,100 @@
-import { Box, Typography, Grid, Card } from '@mui/material';
-const categories = [
-    { name: 'New In' },
-    { name: 'Promotion' },
-    { name: 'Clothing' },
-    { name: 'Shoes' },
-    { name: 'Bags' },
-];
+import {Box,Typography,Grid,Card,CardContent} from "@mui/material";
+import { categories } from "../data/categories.js";
 function Categories() {
-    return (
-    <Box
+    return(
+        <Box
         sx={{
-        mx: 'auto',
-        px: 2,
-        py: 6,
-        }} 
-    >
-        <Typography variant="h4" fontWeight="bold" align="center" gutterBottom>
-        Categories you might like
-        </Typography>
-
-        <Grid container spacing={7} justifyContent="center" sx={{ mt: 5 }}>
-        {categories.map((category) => (
-            <Grid key={category.name}>
-            <Card
-                sx={{
-                width: 180,
-                height: 180,
-                borderRadius: '50%',
-                backgroundColor: '#f5f5f5',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'transform 0.3s ease',
-                '&:hover': {
-                    transform: 'scale(1.05)',
-                },
-                }}
+            maxWidth: "1200px",
+            mx: "auto",
+            px: 2,
+            py: 6,
+        }}
+        >
+        <Box
+            sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 4,
+            }}
+        >
+            <Typography
+            variant="h4"
+            fontWeight="bold"
+            sx={{ fontSize: { xs: "1.8rem", md: "2.5rem" } }}
             >
-                <Typography fontWeight="medium">
-                {category.name}
-                </Typography>
-            </Card>
+            Categories you might like
+            </Typography>
+            <Typography
+            component="a"
+            href="#"
+            sx={{
+                textDecoration: "underline",
+                color: "#000",
+                fontSize: "16px",
+                "&:hover": { color: "#d32f2f" },
+            }}
+            >
+            View All Collection
+            </Typography>
+        </Box>
+
+        <Box sx={{ position: "relative" }}>
+            <Grid container spacing={4} justifyContent="center" sx={{ px: 2 }}>
+                {categories.map((category) => (
+                <Grid item xs={6} sm={4} md={2} key={category.id}>
+                    <Card
+                        sx={{
+                            width: { xs: 150, sm: 180 },
+                            height: { xs: 150, sm: 180 },
+                            borderRadius: "50%",
+                            position: "relative",
+                            overflow: "hidden",
+                            cursor: "pointer",
+                            transition: "transform 0.3s ease",
+                            "&:hover": {
+                            transform: "scale(1.05)",
+                        },
+                        }}
+                    >
+                    <Box
+                        component="img"
+                        src={category.image}
+                        alt={category.name}
+                        sx={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                        }}
+                        />
+                        <CardContent
+                        sx={{
+                            position: "absolute",
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            backgroundColor: "rgba(255, 255, 255, 0.9)",
+                            textAlign: "center",
+                            py: 1,
+                        }}
+                        >
+                        <Typography
+                            fontWeight="600"
+                            sx={{ fontSize: "14px", mb: 0.5 }}
+                        >
+                            {category.name}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                            {category.itemCount} items
+                        </Typography>
+                        </CardContent>
+                    </Card>
+                </Grid>
+                ))}
             </Grid>
-        ))}
-        </Grid>
-    </Box>
+        </Box>
+        </Box>
     );
 }
+
 export default Categories;

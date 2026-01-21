@@ -5,7 +5,7 @@ function Container({children}){
         <Box sx={{
             maxWidth: '1200px',
             mx: 'auto',
-            px: 2,
+            px:{xs:2,sm:3,md:4},
         }}>
             {children}
         </Box>

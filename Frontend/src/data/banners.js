@@ -1,6 +1,6 @@
 export const heroBanner = {
-    title: 'BIKINIS & SWIMSUITS',
-    subtitle: 'Flash Sale Madness',
+    title: 'Your GenZ fashion',
+    subtitle: 'Moje Moj',
     buttonText: 'Explore Collection',
     image: 'https://res.cloudinary.com/ducxkpytj/image/upload/v1768131146/Untitled_design_1_k1dbwd.jpg', 
     position: 'left',
