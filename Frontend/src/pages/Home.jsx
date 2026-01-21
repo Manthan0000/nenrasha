@@ -5,24 +5,15 @@ import Container from '../components/Container.jsx';
 import { products } from "../data/products.js";
 import ProductCard from "../components/ProductCard.jsx";
 import HeroSection from "../components/HeroSection.jsx";
+import ScrollToTop from "../components/ScrollToTop.jsx";
 
 function Home(){
     return (
         <>
         <HeroSection />
         <Categories />
-
-    <Grid container spacing={3}>
-        {products.map((product) => (
-            <Grid
-                key={product.id}
-                gridColumn={{ xs: 'span 12', sm: 'span 6', md: 'span 3' }}
-            >
-            <ProductCard product={product} />
-            </Grid>
-        ))}
-    </Grid>
         <ProductsSection />
+        <ScrollToTop />
         </>
     );
 }
