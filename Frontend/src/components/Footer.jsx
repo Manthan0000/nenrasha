@@ -66,7 +66,6 @@ function Footer(){
                     </Grid>
                 </Container>
             </Box>
-
             {/*Main Footer*/}
             <Container>
                 <Grid container spacing={6} sx={{ py: 6 }}>
@@ -123,7 +122,6 @@ function Footer(){
                             </IconButton>
                         </Box>
                     </Grid>
-                    
                     {/* Information */}
                     <Grid item xs={12} sm={6} md={2}>
                         <Typography sx={{ fontWeight: 'bold', mb: 2, fontSize: '16px' }}>
@@ -146,7 +144,6 @@ function Footer(){
                             ))}
                         </Box>
                     </Grid>
-                    
                     {/* Customer Services */}
                     <Grid item xs={12} sm={6} md={2}>
                         <Typography sx={{ fontWeight: 'bold', mb: 2, fontSize: '16px' }}>
@@ -169,7 +166,6 @@ function Footer(){
                             ))}
                         </Box>
                     </Grid>
-                    
                     {/* Newsletter */}
                     <Grid item xs={12} md={5}>
                         <Typography sx={{ fontWeight: 'bold', mb: 2, fontSize: '16px' }}>
