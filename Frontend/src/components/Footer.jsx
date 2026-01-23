@@ -166,6 +166,7 @@ function Footer(){
                             ))}
                         </Box>
                     </Grid>
+                    
                     {/* Newsletter */}
                     <Grid item xs={12} md={5}>
                         <Typography sx={{ fontWeight: 'bold', mb: 2, fontSize: '16px' }}>
