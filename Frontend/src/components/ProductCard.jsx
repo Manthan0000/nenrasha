@@ -40,6 +40,9 @@ function ProductCard({ product }){
                 borderRadius: 0,
                 boxShadow: "none",
                 position: 'relative',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
                 '&:hover': {
                     '& .product-actions': {
                         opacity: 1,
