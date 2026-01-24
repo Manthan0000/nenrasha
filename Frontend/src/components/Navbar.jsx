@@ -90,8 +90,10 @@ function Navbar() {
                 Blog
             </Button>
             <Button 
+                component={Link}
+                to="/about"
                 sx={{
-                    color: '#000',
+                    color: location.pathname === '/about' ? '#d32f2f' : '#000',
                     textTransform: 'none',
                     fontSize: '15px',
                     '&:hover': { backgroundColor: 'transparent' }
