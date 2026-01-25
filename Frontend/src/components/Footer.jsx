@@ -1,11 +1,12 @@
-import {Box ,Typography,Grid, Link, TextField,IconButton, Container} from '@mui/material';
+import {Box ,Typography,Grid, TextField,IconButton, Container} from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
-import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import InstagramIcon from '@mui/icons-material/Instagram';
+import LinkedinIcon from '@mui/icons-material/LinkedIn';
 import { Link as RouterLink } from 'react-router-dom';
+import Link from '@mui/material/Link';
 
 function Footer(){
     const services = [
@@ -81,7 +82,7 @@ function Footer(){
                                 letterSpacing: '1px',
                             }}
                         >
-                        Modave
+                        Nenrasha
                         </Typography>
                         <Typography sx={{ fontSize: '14px', mb: 2, color: 'text.secondary' }}>
                             Gandhinagar, Gujarat
@@ -112,15 +113,21 @@ function Footer(){
                             <Typography sx={{ fontSize: '14px' }}>+91 84014+++++</Typography>
                         </Box>
                         <Box sx={{ display: 'flex', gap: 1 }}>
+                            <Link href="https://www.linkedin.com/in/manthan-jasoliya" target="_blank" rel="noopener noreferrer">
                             <IconButton sx={{ backgroundColor: '#fff', '&:hover': { backgroundColor: '#e0e0e0' } }}>
-                                <FacebookIcon />
+                                <LinkedinIcon />
                             </IconButton>
+                            </Link>
+                            <Link href="https://x.com/Manthan__28__" target="_blank" rel="noopener noreferrer">
                             <IconButton sx={{ backgroundColor: '#fff', '&:hover': { backgroundColor: '#e0e0e0' } }}>
                                 <TwitterIcon />
                             </IconButton>
+                            </Link>
+                            <Link href="https://www.instagram.com/manthannn__28__/" target="_blank" rel="noopener noreferrer">
                             <IconButton sx={{ backgroundColor: '#fff', '&:hover': { backgroundColor: '#e0e0e0' } }}>
                                 <InstagramIcon />
                             </IconButton>
+                            </Link>
                         </Box>
                     </Grid>
                     {/* Information */}
