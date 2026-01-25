@@ -44,7 +44,7 @@ function Navbar() {
             letterSpacing: '1px',
           }}
         >
-          Modave
+          Nenrasha
         </Typography>
 
         {/* Menu */}
