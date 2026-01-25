@@ -1,10 +1,11 @@
-import {Box ,Typography,Grid, Link, TextField,IconButton,Select,MenuItem, Container} from '@mui/material';
+import {Box ,Typography,Grid, Link, TextField,IconButton, Container} from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import InstagramIcon from '@mui/icons-material/Instagram';
+import { Link as RouterLink } from 'react-router-dom';
 
 function Footer(){
     const services = [
@@ -128,20 +129,33 @@ function Footer(){
                             Infomation
                         </Typography>
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                            {informationLinks.map((link) => (
-                                <Link
-                                    key={link}
-                                    href="#"
-                                    sx={{
-                                        color: 'text.secondary',
-                                        textDecoration: 'none',
-                                        fontSize: '14px',
-                                        '&:hover': { color: '#d32f2f' },
-                                    }}
-                                >
-                                {link}
-                            </Link>
-                            ))}
+                            {informationLinks.map((link) => {
+                                const getRoute = () => {
+                                    if (link === 'About Us') return '/about';
+                                    if (link === 'Contact us') return '/contact';
+                                    if (link === 'My Account') return '/my-account';
+                                    if (link === 'Blog') return '/blog';
+                                    return undefined;
+                                };
+                                const route = getRoute();
+                                const isRoutable = route !== undefined;
+                                return (
+                                    <Link
+                                        key={link}
+                                        component={isRoutable ? RouterLink : 'a'}
+                                        to={isRoutable ? route : undefined}
+                                        href={!isRoutable ? '#' : undefined}
+                                        sx={{
+                                            color: 'text.secondary',
+                                            textDecoration: 'none',
+                                            fontSize: '14px',
+                                            '&:hover': { color: '#d32f2f' },
+                                        }}
+                                    >   
+                                        {link}
+                                    </Link>
+                                );
+                            })}
                         </Box>
                     </Grid>
                     {/* Customer Services */}
