@@ -8,9 +8,10 @@ import Blog from './pages/Blog.jsx';
 import MyAccount from './pages/MyAccount.jsx';
 import Navbar from './components/Navbar.jsx';
 import TopBar from './components/TopBar.jsx';
+import { AuthProvider } from './context/AuthContext';
 function App() {
   return (
-    <div>
+    <AuthProvider>
       <TopBar />
       <Navbar />
       <Routes>
@@ -22,7 +23,7 @@ function App() {
         <Route path='/blog' element={<Blog />}/>
         <Route path='/my-account' element={<MyAccount />}/>
       </Routes>
-    </div>
+    </AuthProvider>
   )
 }
 export default App
