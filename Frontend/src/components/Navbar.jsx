@@ -6,10 +6,12 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 function Navbar() {
   const location = useLocation();
   const [pagesMenuOpen, setPagesMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
 
   return (
     <AppBar 
@@ -210,22 +212,59 @@ function Navbar() {
           </Box>
         </Box>
 
-        {/* Icons */}
+        {/* Icons or Login/Register */}
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           <IconButton sx={{ color: '#000' }}>
             <SearchIcon />
           </IconButton>
-          <IconButton sx={{ color: '#000' }}>
-            <PersonIcon />
-          </IconButton>
-          <IconButton sx={{ color: '#000' }}>
-            <FavoriteIcon />
-          </IconButton>
-          <IconButton sx={{ color: '#000', position: 'relative' }}>
-            <Badge badgeContent={0} color="error">
-              <ShoppingBagIcon />
-            </Badge>
-          </IconButton>
+
+          {user ? (
+            <>
+              {/* User is logged in - show icons */}
+              <IconButton sx={{ color: '#000' }} onClick={logout} title="Logout">
+                <PersonIcon />
+              </IconButton>
+              <IconButton sx={{ color: '#000' }}>
+                <FavoriteIcon />
+              </IconButton>
+              <IconButton sx={{ color: '#000', position: 'relative' }}>
+                <Badge badgeContent={0} color="error">
+                  <ShoppingBagIcon />
+                </Badge>
+              </IconButton>
+            </>
+          ) : (
+            /* User is logged out - show Login / Register text */
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', ml: 1 }}>
+               <Typography 
+                  component={Link} 
+                  to="/login"
+                  sx={{ 
+                    textDecoration: 'none', 
+                    color: '#000', 
+                    fontSize: '15px',
+                    fontWeight: 'bold',
+                    '&:hover': { color: '#d32f2f' }
+                  }}
+               >
+                 Login
+               </Typography>
+               <Typography sx={{ color: '#ccc' }}>/</Typography>
+               <Typography 
+                  component={Link} 
+                  to="/register"
+                  sx={{ 
+                    textDecoration: 'none', 
+                    color: '#000', 
+                    fontSize: '15px',
+                    fontWeight: 'bold',
+                    '&:hover': { color: '#d32f2f' }
+                  }}
+               >
+                 Register
+               </Typography>
+            </Box>
+          )}
         </Box>
       </Toolbar>
     </AppBar>
