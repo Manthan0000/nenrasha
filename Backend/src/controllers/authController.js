@@ -51,6 +51,14 @@ exports.registerUser = async (req, res) => {
         // Generate token - convert ObjectId to string
         const token = generateToken(user._id.toString());
 
+        // Send cookie
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
+        });
+
         // Send response with user data (excluding password)
         res.status(201).json({
             success: true,
@@ -60,7 +68,6 @@ exports.registerUser = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                token,
             },
         });
     } catch (error) {
@@ -110,6 +117,14 @@ exports.loginUser = async (req, res) => {
         // Generate token
         const token = generateToken(user._id);
 
+        // Send cookie
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
+        });
+
         // Send response with user data (excluding password)
         res.status(200).json({
             success: true,
@@ -119,7 +134,6 @@ exports.loginUser = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                token,
             },
         });
     } catch (error) {
