@@ -56,12 +56,7 @@ function Register() {
                 setSuccess('Registration successful! Redirecting...');
                 
                 // Login context
-                login({
-                    _id: data.data._id,
-                    name: data.data.name,
-                    email: data.data.email,
-                    role: data.data.role,
-                });
+                login(data.data);
 
                 setTimeout(() => {
                     navigate('/');

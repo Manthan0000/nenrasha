@@ -7,13 +7,16 @@ import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import ProfileSidebar from './ProfileSidebar';
 
 function Navbar() {
   const location = useLocation();
   const [pagesMenuOpen, setPagesMenuOpen] = useState(false);
   const { user, logout } = useAuth();
+  const [profileOpen, setProfileOpen] = useState(false);
 
   return (
+    <>
     <AppBar 
       position="static" 
       elevation={0} 
@@ -221,8 +224,17 @@ function Navbar() {
           {user ? (
             <>
               {/* User is logged in - show icons */}
-              <IconButton sx={{ color: '#000' }} onClick={logout} title="Logout">
-                <PersonIcon />
+              <IconButton sx={{ color: '#000' }} onClick={() => setProfileOpen(true)}>
+                {/* Use Avatar if available, else icon */}
+                {user.profilePhoto ? (
+                    <img 
+                        src={user.profilePhoto} 
+                        alt="Profile" 
+                        style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }} 
+                    />
+                ) : (
+                    <PersonIcon />
+                )}
               </IconButton>
               <IconButton sx={{ color: '#000' }}>
                 <FavoriteIcon />
@@ -268,6 +280,8 @@ function Navbar() {
         </Box>
       </Toolbar>
     </AppBar>
+    <ProfileSidebar open={profileOpen} onClose={() => setProfileOpen(false)} />
+    </>
   );
 }
 

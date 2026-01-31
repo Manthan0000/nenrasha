@@ -26,6 +26,23 @@ const userSchema = new mongoose.Schema(
             enum: ['user', 'admin'],
             default: 'user',
         },
+        mobile: {
+            type: String,
+            default: '',
+        },
+        gender: {
+            type: String,
+            enum: ['Male', 'Female', 'Other', ''],
+            default: '',
+        },
+        address: {
+            type: String,
+            default: '',
+        },
+        profilePhoto: {
+            type: String,
+            default: '',
+        },
     },
     {
         timestamps: true,

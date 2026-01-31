@@ -42,14 +42,7 @@ function Login() {
             const data = await response.json();
 
             if (data.success) {
-                // Token is handled by cookie, but we store user info for UI
-                // And context handles localStorage
-                login({
-                    _id: data.data._id,
-                    name: data.data.name,
-                    email: data.data.email,
-                    role: data.data.role,
-                });
+                login(data.data);
 
                 navigate('/');
             } else {
