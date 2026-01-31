@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { Box, Typography, TextField, Button, Alert, CircularProgress, Container } from '@mui/material';
 import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
@@ -8,6 +9,7 @@ const API_URL = 'http://localhost:5000/api/auth';
 
 function Login() {
     const navigate = useNavigate();
+    const { login } = useAuth();
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -40,13 +42,7 @@ function Login() {
             const data = await response.json();
 
             if (data.success) {
-                localStorage.setItem('token', data.data.token);
-                localStorage.setItem('user', JSON.stringify({
-                    _id: data.data._id,
-                    name: data.data.name,
-                    email: data.data.email,
-                    role: data.data.role,
-                }));
+                login(data.data);
 
                 navigate('/');
             } else {

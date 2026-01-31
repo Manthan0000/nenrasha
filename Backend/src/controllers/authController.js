@@ -1,5 +1,7 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const cloudinary = require('../config/cloudinaryConfig');
+const streamifier = require('streamifier');
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -51,6 +53,14 @@ exports.registerUser = async (req, res) => {
         // Generate token - convert ObjectId to string
         const token = generateToken(user._id.toString());
 
+        // Send cookie
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
+        });
+
         // Send response with user data (excluding password)
         res.status(201).json({
             success: true,
@@ -60,7 +70,10 @@ exports.registerUser = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                token,
+                mobile: user.mobile,
+                gender: user.gender,
+                address: user.address,
+                profilePhoto: user.profilePhoto,
             },
         });
     } catch (error) {
@@ -110,6 +123,14 @@ exports.loginUser = async (req, res) => {
         // Generate token
         const token = generateToken(user._id);
 
+        // Send cookie
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
+        });
+
         // Send response with user data (excluding password)
         res.status(200).json({
             success: true,
@@ -119,7 +140,10 @@ exports.loginUser = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
-                token,
+                mobile: user.mobile,
+                gender: user.gender,
+                address: user.address,
+                profilePhoto: user.profilePhoto,
             },
         });
     } catch (error) {
@@ -127,6 +151,74 @@ exports.loginUser = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Server error during login',
+        });
+    }
+};
+
+// @desc    Update user profile
+// @route   PUT /api/auth/profile
+// @access  Private
+exports.updateProfile = async (req, res) => {
+    try {
+        const { userId, name, mobile, gender, address } = req.body;
+
+        // In a real app, middleware should populate req.user
+        // Here we require userId in body for simplicity as per current auth flow
+        
+        let user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found',
+            });
+        }
+
+        // Update text fields
+        if (name) user.name = name;
+        if (mobile) user.mobile = mobile;
+        if (gender) user.gender = gender;
+        if (address) user.address = address;
+
+        // Handle Image Upload
+        if (req.file) {
+            // Promisify stream upload
+            const result = await new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { folder: 'nenrasha_profiles' },
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result);
+                    }
+                );
+                streamifier.createReadStream(req.file.buffer).pipe(stream);
+            });
+
+            user.profilePhoto = result.secure_url;
+        }
+
+        const updatedUser = await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Profile updated successfully',
+            data: {
+                _id: updatedUser._id,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                role: updatedUser.role,
+                mobile: updatedUser.mobile,
+                gender: updatedUser.gender,
+                address: updatedUser.address,
+                profilePhoto: updatedUser.profilePhoto,
+            },
+        });
+
+    } catch (error) {
+        console.error('Update profile error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error during profile update',
         });
     }
 };

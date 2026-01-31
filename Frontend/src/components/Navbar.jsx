@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, Typography, Button, Box, IconButton, Badge } from '@mui/material';
+ import { AppBar, Toolbar, Typography, Button, Box, IconButton, Badge } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
 import SearchIcon from '@mui/icons-material/Search';
 import PersonIcon from '@mui/icons-material/Person';
@@ -6,12 +6,17 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import ProfileSidebar from './ProfileSidebar';
 
 function Navbar() {
   const location = useLocation();
   const [pagesMenuOpen, setPagesMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const [profileOpen, setProfileOpen] = useState(false);
 
   return (
+    <>
     <AppBar 
       position="static" 
       elevation={0} 
@@ -210,25 +215,73 @@ function Navbar() {
           </Box>
         </Box>
 
-        {/* Icons */}
+        {/* Icons or Login/Register */}
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           <IconButton sx={{ color: '#000' }}>
             <SearchIcon />
           </IconButton>
-          <IconButton sx={{ color: '#000' }}>
-            <PersonIcon />
-          </IconButton>
-          <IconButton sx={{ color: '#000' }}>
-            <FavoriteIcon />
-          </IconButton>
-          <IconButton sx={{ color: '#000', position: 'relative' }}>
-            <Badge badgeContent={0} color="error">
-              <ShoppingBagIcon />
-            </Badge>
-          </IconButton>
+
+          {user ? (
+            <>
+              {/* User is logged in - show icons */}
+              <IconButton sx={{ color: '#000' }} onClick={() => setProfileOpen(true)}>
+                {/* Use Avatar if available, else icon */}
+                {user.profilePhoto ? (
+                    <img 
+                        src={user.profilePhoto} 
+                        alt="Profile" 
+                        style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }} 
+                    />
+                ) : (
+                    <PersonIcon />
+                )}
+              </IconButton>
+              <IconButton sx={{ color: '#000' }}>
+                <FavoriteIcon />
+              </IconButton>
+              <IconButton sx={{ color: '#000', position: 'relative' }}>
+                <Badge badgeContent={0} color="error">
+                  <ShoppingBagIcon />
+                </Badge>
+              </IconButton>
+            </>
+          ) : (
+            /* User is logged out - show Login / Register text */
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', ml: 1 }}>
+               <Typography 
+                  component={Link} 
+                  to="/login"
+                  sx={{ 
+                    textDecoration: 'none', 
+                    color: '#000', 
+                    fontSize: '15px',
+                    fontWeight: 'bold',
+                    '&:hover': { color: '#d32f2f' }
+                  }}
+               >
+                 Login
+               </Typography>
+               <Typography sx={{ color: '#ccc' }}>/</Typography>
+               <Typography 
+                  component={Link} 
+                  to="/register"
+                  sx={{ 
+                    textDecoration: 'none', 
+                    color: '#000', 
+                    fontSize: '15px',
+                    fontWeight: 'bold',
+                    '&:hover': { color: '#d32f2f' }
+                  }}
+               >
+                 Register
+               </Typography>
+            </Box>
+          )}
         </Box>
       </Toolbar>
     </AppBar>
+    <ProfileSidebar open={profileOpen} onClose={() => setProfileOpen(false)} />
+    </>
   );
 }
 
