@@ -7,6 +7,7 @@ import InstagramIcon from '@mui/icons-material/Instagram';
 import LinkedinIcon from '@mui/icons-material/LinkedIn';
 import { Link as RouterLink } from 'react-router-dom';
 import Link from '@mui/material/Link';
+import { useAuth } from '../context/AuthContext';
 
 function Footer(){
     const services = [
@@ -31,12 +32,20 @@ function Footer(){
             description: 'Special price for our loyal customer',
         },
     ];
+    const { user } = useAuth();
+    
     const informationLinks = [
-        'About Us',
-        'Blog',
-        'Contact us',
-        'My Account',
+        { name: 'About Us', path: '/about' },
+        { name: 'Blog', path: '/blog' },
+        { name: 'Contact us', path: '/contact' },
     ];
+
+    if (user) {
+        informationLinks.push({ name: 'My Account', path: '/my-account' });
+    } else {
+        informationLinks.push({ name: 'Login', path: '/login' });
+        informationLinks.push({ name: 'Register', path: '/register' });
+    }
     const customerServicesLinks = [
         'Shipping',
         'Return & Refund',
@@ -136,33 +145,21 @@ function Footer(){
                             Infomation
                         </Typography>
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                            {informationLinks.map((link) => {
-                                const getRoute = () => {
-                                    if (link === 'About Us') return '/about';
-                                    if (link === 'Contact us') return '/contact';
-                                    if (link === 'My Account') return '/my-account';
-                                    if (link === 'Blog') return '/blog';
-                                    return undefined;
-                                };
-                                const route = getRoute();
-                                const isRoutable = route !== undefined;
-                                return (
-                                    <Link
-                                        key={link}
-                                        component={isRoutable ? RouterLink : 'a'}
-                                        to={isRoutable ? route : undefined}
-                                        href={!isRoutable ? '#' : undefined}
-                                        sx={{
-                                            color: 'text.secondary',
-                                            textDecoration: 'none',
-                                            fontSize: '14px',
-                                            '&:hover': { color: '#d32f2f' },
-                                        }}
-                                    >   
-                                        {link}
-                                    </Link>
-                                );
-                            })}
+                            {informationLinks.map((link) => (
+                                <Link
+                                    key={link.name}
+                                    component={RouterLink}
+                                    to={link.path}
+                                    sx={{
+                                        color: 'text.secondary',
+                                        textDecoration: 'none',
+                                        fontSize: '14px',
+                                        '&:hover': { color: '#d32f2f' },
+                                    }}
+                                >   
+                                    {link.name}
+                                </Link>
+                            ))}
                         </Box>
                     </Grid>
                     {/* Customer Services */}
