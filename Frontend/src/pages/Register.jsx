@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { Box, Typography, TextField, Button, Alert, CircularProgress, Container, RadioGroup, FormControlLabel, Radio, FormControl, FormLabel } from '@mui/material';
 import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
@@ -8,6 +9,7 @@ const API_URL = 'http://localhost:5000/api/auth';
 
 function Register() {
     const navigate = useNavigate();
+    const { login } = useAuth();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -53,13 +55,8 @@ function Register() {
             if (data.success) {
                 setSuccess('Registration successful! Redirecting...');
                 
-                localStorage.setItem('token', data.data.token);
-                localStorage.setItem('user', JSON.stringify({
-                    _id: data.data._id,
-                    name: data.data.name,
-                    email: data.data.email,
-                    role: data.data.role,
-                }));
+                // Login context
+                login(data.data);
 
                 setTimeout(() => {
                     navigate('/');
