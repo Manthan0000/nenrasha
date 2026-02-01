@@ -1,18 +1,37 @@
 import { Box, Typography, Tabs, Tab, IconButton } from '@mui/material';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import ProductCard from './ProductCard';
-import { newArrivals, bestSellers, onSale } from '../data/products';
+import { products } from '../data/products';
 import Container from './Container';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
-const productCategories = [newArrivals, bestSellers, onSale];
-const tabLabels = ['New Arrivals', 'Best Seller', 'On Sale'];
+const tabLabels = ['On Sale', 'Trending'];
 
 function ProductTabs() {
   const [value, setValue] = useState(0);
   const scrollContainerRef = useRef(null);
-  const products = productCategories[value];
+  
+  // Filter products based on active tab
+  const getFilteredProducts = () => {
+    const currentLabel = tabLabels[value];
+    if (currentLabel === 'On Sale') {
+        return products.filter(product => product.discount > 20);
+    } else if (currentLabel === 'Trending') {
+        // Sort by visits descending and take top 8
+        return [...products].sort((a, b) => (b.visits || 0) - (a.visits || 0)).slice(0, 8);
+    }
+    return [];
+  };
+
+  const displayedProducts = getFilteredProducts();
+
+  // Reset scroll when tab changes
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = 0;
+    }
+  }, [value]);
 
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
@@ -33,24 +52,20 @@ function ProductTabs() {
   };
 
   return (
-    <Box sx={{ py: 6 }}>
+    <Box sx={{ py: 6 }} id="product-tabs">
       <Container>
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 6 }}>
           <Tabs
             value={value}
-            onChange={(e, newValue) => {
-              setValue(newValue);
-              // Reset scroll position when tab changes
-              if (scrollContainerRef.current) {
-                scrollContainerRef.current.scrollLeft = 0;
-              }
-            }}
+            onChange={(e, val) => setValue(val)}
+            centered
             sx={{
               '& .MuiTab-root': {
                 textTransform: 'none',
-                fontSize: '16px',
+                fontSize: '18px',
                 fontWeight: 500,
-                minWidth: '150px',
+                minWidth: 'auto',
+                mx: 3,
                 '&.Mui-selected': {
                   fontWeight: 'bold',
                   textDecoration: 'underline',
@@ -100,7 +115,7 @@ function ProductTabs() {
               pb: 2,
             }}
           >
-            {products.map((product) => (
+            {displayedProducts.map((product) => (
               <Box
                 key={product.id}
                 sx={{
