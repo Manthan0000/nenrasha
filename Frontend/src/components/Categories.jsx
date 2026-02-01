@@ -1,6 +1,8 @@
 import {Box,Typography,Grid,Card,CardContent} from "@mui/material";
 import { categories } from "../data/categories.js";
+import { useNavigate } from "react-router-dom";
 function Categories() {
+    const navigate = useNavigate();
     return(
         <Box
         sx={{
@@ -26,12 +28,12 @@ function Categories() {
             Categories you might like
             </Typography>
             <Typography
-            component="a"
-            href="#"
+            onClick={() => navigate('/category/all')}
             sx={{
                 textDecoration: "underline",
                 color: "#000",
                 fontSize: "16px",
+                cursor: "pointer",
                 "&:hover": { color: "#d32f2f" },
             }}
             >
@@ -44,6 +46,7 @@ function Categories() {
                 {categories.map((category) => (
                 <Grid item xs={6} sm={4} md={2} key={category.id}>
                     <Card
+                        onClick={() => navigate(`/category/${category.name}`)}
                         sx={{
                             width: { xs: 150, sm: 180 },
                             height: { xs: 150, sm: 180 },

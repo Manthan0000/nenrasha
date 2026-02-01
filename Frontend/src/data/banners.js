@@ -24,10 +24,3 @@ export const promoBanners = [
         link: '/shop-collection'
     }
 ];
-
-export const limitedDealBanner = {
-    title: 'Limited-Time Deals On!',
-    subtitle: 'Up to 50% Off Selected Styles. Don\'t Miss Out.',
-    buttonText: 'Shop Now',
-    image: 'https://images.unsplash.com/photo-1594633313593-bab3825d0caf?w=800&h=600&fit=crop'
-};
