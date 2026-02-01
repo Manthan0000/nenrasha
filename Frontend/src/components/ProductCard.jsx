@@ -79,7 +79,7 @@ function ProductCard({ product }){
                 }}
             />
 
-            {product.isSale && product.discount > 0 && (
+            {product.discount > 0 && (
                 <Box
                     sx={{
                         position: "absolute",
@@ -155,6 +155,9 @@ function ProductCard({ product }){
 
         {/* CONTENT */}
         <CardContent sx={{ px: 0, pt: 2 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                {product.brand}
+            </Typography>
             <Typography fontWeight={500} sx={{ mb: 1, fontSize: '15px' }}>
                 {product.name}
             </Typography>
