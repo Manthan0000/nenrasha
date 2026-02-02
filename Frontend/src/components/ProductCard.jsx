@@ -1,27 +1,12 @@
 import { Card, CardContent, Typography, Box, IconButton, Button, Stack } from "@mui/material";
+import { useNavigate } from 'react-router-dom';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShareIcon from '@mui/icons-material/Share';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 
-const getColorValue = (color) => {
-    const colorMap = {
-        white: '#fff',
-        lightgray: '#e0e0e0',
-        orange: '#ff9800',
-        taupe: '#a0826d',
-        pink: '#f48fb1',
-        lavender: '#ce93d8',
-        beige: '#f5f5dc',
-        sagegreen: '#9caf88',
-        red: '#f44336',
-        brown: '#8d6e63',
-    };
-    return colorMap[color] || '#ccc';
-};
+
 
 const actionIcons = [
     {Icon: FavoriteIcon},
-    {Icon: ShareIcon},
     {Icon: VisibilityIcon},
 ];
 
@@ -34,6 +19,7 @@ const getOldPrice = (oldPriceINR) => {
 };
 
 function ProductCard({ product }){
+    const navigate = useNavigate();
     return(
         <Card
             sx={{
@@ -62,7 +48,9 @@ function ProductCard({ product }){
                 height: 400,
                 overflow: "hidden",
                 backgroundColor: "#f5f5f5",
+                cursor: 'pointer',
             }}
+            onClick={() => navigate(`/product/${product.id}`)}
         >
             <Box
                 component="img"
@@ -185,24 +173,7 @@ function ProductCard({ product }){
                 )}
             </Box>
 
-            {/* Color Swatches */}
-            {product.colors && product.colors.length > 0 && (
-                <Stack direction="row" spacing={1} sx={{ mt: 1.5 }}>
-                    {product.colors.map((color, index) => (
-                        <Box
-                            key={index}
-                            sx={{
-                                width: 20,
-                                height: 20,
-                                borderRadius: '50%',
-                                backgroundColor: getColorValue(color),
-                                border: index === 0 ? '2px solid #000' : '1px solid #ddd',
-                                cursor: 'pointer',
-                            }}
-                        />
-                    ))}
-                </Stack>
-            )}
+
         </CardContent>
         </Card>
     );
