@@ -1,8 +1,8 @@
 import { useParams } from 'react-router-dom';
 import { Box, Typography, Grid } from '@mui/material';
+import { useState, useEffect } from 'react';
 import Container from '../components/Container';
 import ProductCard from '../components/ProductCard';
-import { products } from '../data/products';
 
 // Helper to normalize category matching
 const normalizeCategory = (cat) => cat.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -11,6 +11,24 @@ function CategoryPage() {
     const { categoryName } = useParams();
     const isAll = categoryName && categoryName.toLowerCase() === 'all';
     
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch('http://localhost:5000/api/products')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    setProducts(data.data.map(p => ({ ...p, id: p._id })));
+                }
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                setLoading(false);
+            });
+    }, []);
+
     const filteredProducts = isAll ? products : products.filter(product => {
         // Handle mapping if necessary. The URL param will be the category name.
         if (!categoryName) return false;
@@ -25,6 +43,8 @@ function CategoryPage() {
         
         return product.category.toLowerCase() === categoryName.toLowerCase();
     });
+
+    if (loading) return <Box sx={{p: 4}}>Loading...</Box>;
 
     return (
         <Container sx={{ py: 4 }}>
