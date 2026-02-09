@@ -4,7 +4,6 @@ import {
     Box, Typography, Button, Container, Grid, IconButton, 
     Chip, Stack, Divider, Breadcrumbs, Link as MuiLink 
 } from '@mui/material';
-import { products } from '../data/products';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -23,18 +22,27 @@ const ProductDetails = () => {
 
     useEffect(() => {
         // Find product by ID
-        const foundProduct = products.find(p => p.id === id);
-        if (foundProduct) {
-            setProduct(foundProduct);
-            // Set defaults if available, else use mocks
-            const sizes = foundProduct.size && foundProduct.size.length > 0 ? foundProduct.size : getMockSizes();
-            const colors = foundProduct.colors && foundProduct.colors.length > 0 ? foundProduct.colors : getMockColors();
-            
-            // Just for UI state 
-            setSelectedSize(sizes[2]); // Default to middle size
-            setSelectedColor(colors[0]);
-        }
-        setLoading(false);
+        fetch(`http://localhost:5000/api/products/${id}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const foundProduct = { ...data.data, id: data.data._id };
+                    setProduct(foundProduct);
+                    
+                    // Set defaults if available, else use mocks
+                    const sizes = foundProduct.size && foundProduct.size.length > 0 ? foundProduct.size : getMockSizes();
+                    const colors = foundProduct.colors && foundProduct.colors.length > 0 ? foundProduct.colors : getMockColors();
+                    
+                    // Just for UI state 
+                    setSelectedSize(sizes[0]); 
+                    setSelectedColor(colors[0]);
+                }
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                setLoading(false);
+            });
     }, [id]);
 
     if (loading) {
