@@ -1,7 +1,7 @@
 import { Box, Typography, Tabs, Tab, IconButton } from '@mui/material';
 import { useState, useRef, useEffect } from 'react';
 import ProductCard from './ProductCard';
-import { products } from '../data/products';
+
 import Container from './Container';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -11,7 +11,24 @@ const tabLabels = ['On Sale', 'Trending'];
 function ProductTabs() {
   const [value, setValue] = useState(0);
   const scrollContainerRef = useRef(null);
-  
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setProducts(data.data.map(p => ({ ...p, id: p._id })));
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
+
   // Filter products based on active tab
   const getFilteredProducts = () => {
     const currentLabel = tabLabels[value];

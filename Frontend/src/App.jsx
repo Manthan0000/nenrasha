@@ -8,6 +8,8 @@ import Blog from './pages/Blog.jsx';
 import MyAccount from './pages/MyAccount.jsx';
 import CategoryPage from './pages/CategoryPage.jsx';
 import ProductDetails from './pages/ProductDetails.jsx';
+import AddProduct from './pages/AddProduct.jsx';
+
 import Navbar from './components/Navbar.jsx';
 import TopBar from './components/TopBar.jsx';
 import { AuthProvider } from './context/AuthContext';
@@ -26,6 +28,7 @@ function App() {
         <Route path='/my-account' element={<MyAccount />}/>
         <Route path='/category/:categoryName' element={<CategoryPage />} />
         <Route path='/product/:id' element={<ProductDetails />} />
+        <Route path='/admin/add-product' element={<AddProduct />} />
       </Routes>
     </AuthProvider>
   )
