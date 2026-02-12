@@ -43,6 +43,10 @@ const userSchema = new mongoose.Schema(
             type: String,
             default: '',
         },
+        likedProducts: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Product'
+        }]
     },
     {
         timestamps: true,

@@ -57,7 +57,7 @@ exports.registerUser = async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax', // Relaxed for local dev
             maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
         });
 
@@ -74,6 +74,8 @@ exports.registerUser = async (req, res) => {
                 gender: user.gender,
                 address: user.address,
                 profilePhoto: user.profilePhoto,
+                likedProducts: user.likedProducts,
+                token: token, // Send token in response for redundancy
             },
         });
     } catch (error) {
@@ -127,7 +129,7 @@ exports.loginUser = async (req, res) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax', // Relaxed for local dev
             maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
         });
 
@@ -144,6 +146,8 @@ exports.loginUser = async (req, res) => {
                 gender: user.gender,
                 address: user.address,
                 profilePhoto: user.profilePhoto,
+                likedProducts: user.likedProducts,
+                token: token, // Send token in response for redundancy
             },
         });
     } catch (error) {

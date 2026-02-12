@@ -3,7 +3,7 @@ import {Box} from '@mui/material';
 function Container({children}){
     return(
         <Box sx={{
-            maxWidth: '1200px',
+            maxWidth: { xs: '100%', sm: '1200px', md: '1400px' },
             mx: 'auto',
             px:{xs:2,sm:3,md:4},
         }}>

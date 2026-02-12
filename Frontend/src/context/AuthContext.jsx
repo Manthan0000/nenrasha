@@ -39,11 +39,39 @@ export const AuthProvider = ({ children }) => {
     // Ideally: await fetch('/api/auth/logout', { method: 'POST' });
   };
 
+  const toggleLike = async (productId) => {
+    if (!user) return { success: false, message: 'Please login to like products' };
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/products/${productId}/like`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`
+        }
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        // Update user state locally
+        const updatedUser = { ...user, likedProducts: data.likedProducts };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser)); // Persist
+        return { success: true, likes: data.likes };
+      }
+      return { success: false, message: data.message };
+    } catch (error) {
+      console.error(error);
+      return { success: false, message: 'Error toggling like' };
+    }
+  };
+
   const value = {
     user,
     login,
     logout,
-    loading
+    loading,
+    toggleLike
   };
 
   return (
