@@ -103,6 +103,18 @@ function MyAccount() {
                       >
                         Logout
                       </Button>
+                      {user.role === 'admin' && (
+                          <Button 
+                              variant="contained" 
+                              sx={{ 
+                                  backgroundColor: '#1976d2',
+                                  '&:hover': { backgroundColor: '#115293' }
+                              }}
+                              onClick={() => navigate('/admin/add-product')}
+                          >
+                              Add Product
+                          </Button>
+                      )}
                     </Stack>
                   </Box>
                 </Box>

@@ -4,10 +4,11 @@ import {
     Box, Typography, Button, Container, Grid, IconButton, 
     Chip, Stack, Divider, Breadcrumbs, Link as MuiLink 
 } from '@mui/material';
-import { products } from '../data/products';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useAuth } from '../context/AuthContext';
 
 // Mock data helper if fields are missing
 const getMockSizes = () => ['S', 'M', 'L', 'XL', 'XXL'];
@@ -16,6 +17,7 @@ const getMockColors = () => ['#000000', '#FFFFFF', '#1976d2', '#d32f2f', '#388e3
 const ProductDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { user, toggleLike } = useAuth();
     const [product, setProduct] = useState(null);
     const [selectedSize, setSelectedSize] = useState('');
     const [selectedColor, setSelectedColor] = useState('');
@@ -23,18 +25,27 @@ const ProductDetails = () => {
 
     useEffect(() => {
         // Find product by ID
-        const foundProduct = products.find(p => p.id === id);
-        if (foundProduct) {
-            setProduct(foundProduct);
-            // Set defaults if available, else use mocks
-            const sizes = foundProduct.size && foundProduct.size.length > 0 ? foundProduct.size : getMockSizes();
-            const colors = foundProduct.colors && foundProduct.colors.length > 0 ? foundProduct.colors : getMockColors();
-            
-            // Just for UI state 
-            setSelectedSize(sizes[2]); // Default to middle size
-            setSelectedColor(colors[0]);
-        }
-        setLoading(false);
+        fetch(`http://localhost:5000/api/products/${id}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const foundProduct = { ...data.data, id: data.data._id };
+                    setProduct(foundProduct);
+                    
+                    // Set defaults if available, else use mocks
+                    const sizes = foundProduct.size && foundProduct.size.length > 0 ? foundProduct.size : getMockSizes();
+                    const colors = foundProduct.colors && foundProduct.colors.length > 0 ? foundProduct.colors : getMockColors();
+                    
+                    // Just for UI state 
+                    setSelectedSize(sizes[0]); 
+                    setSelectedColor(colors[0]);
+                }
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                setLoading(false);
+            });
     }, [id]);
 
     if (loading) {
@@ -214,13 +225,15 @@ const ProductDetails = () => {
                                 </Button>
                                 <IconButton 
                                     size="large" 
+                                    onClick={() => toggleLike(product.id)}
                                     sx={{ 
                                         border: '1px solid #ddd', 
                                         borderRadius: 1,
-                                        width: 56
+                                        width: 56,
+                                        color: user?.likedProducts?.includes(product.id) ? '#d32f2f' : 'inherit'
                                     }}
                                 >
-                                    <FavoriteBorderIcon />
+                                    {user?.likedProducts?.includes(product.id) ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                                 </IconButton>
                             </Stack>
 
