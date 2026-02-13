@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useAuth } from '../context/AuthContext';
 
 
@@ -33,6 +35,32 @@ function ProductCard({ product }){
         
         navigate(`/product/${product.id}`);
     };
+
+    const handleDelete = async (e) => {
+        e.stopPropagation();
+        if (window.confirm('Are you sure you want to delete this product?')) {
+            try {
+                const res = await fetch(`http://localhost:5000/api/products/${product.id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${user.token}`
+                    }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Product deleted successfully');
+                    window.location.reload(); 
+                } else {
+                    alert(data.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error deleting product');
+            }
+        }
+    };
+
+    const isOwner = user && user.role === 'admin' && (product.createdBy === user._id || product.createdBy === user.id);
 
     return(
         <Card
@@ -172,6 +200,51 @@ function ProductCard({ product }){
                 >
                     <VisibilityIcon fontSize="small" />
                 </IconButton>
+
+                {isOwner && (
+                    <>
+                        <IconButton
+                            size="small"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                // Assuming we'll have an edit route or handle it in AddProduct
+                                navigate(`/admin/edit-product/${product.id}`);
+                            }}
+                            sx={{
+                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                backdropFilter: 'blur(10px)',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                                '&:hover': { 
+                                    backgroundColor: '#fff',
+                                    transform: 'scale(1.1)',
+                                    color: '#1976d2'
+                                },
+                                color: '#333',
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                            size="small"
+                            onClick={handleDelete}
+                            sx={{
+                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                backdropFilter: 'blur(10px)',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                                '&:hover': { 
+                                    backgroundColor: '#fff',
+                                    transform: 'scale(1.1)',
+                                    color: '#d32f2f'
+                                },
+                                color: '#333',
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            <DeleteIcon fontSize="small" />
+                        </IconButton>
+                    </>
+                )}
             </Box>
 
             {/* Add to Cart Button */}

@@ -1,6 +1,7 @@
 const Product = require('../models/Product');
 const User = require('../models/User');
 const cloudinary = require('../config/cloudinaryConfig');
+const fs = require('fs');
 
 
 // @desc    Toggle product like
@@ -182,5 +183,102 @@ exports.createProduct = async (req, res) => {
             success: false,
             message: 'Server error creating product'
         });
+    }
+};
+
+// @desc    Update a product
+// @route   PUT /api/products/:id
+// @access  Private/Admin
+exports.updateProduct = async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id);
+
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        // Check if the user is the one who created the product
+        if (product.createdBy.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ 
+                success: false, 
+                message: 'Not authorized: Only the admin who listed this product can update it' 
+            });
+        }
+
+        const {
+            name,
+            brand,
+            priceINR,
+            oldPriceINR,
+            discount,
+            category,
+            colors,
+            size
+        } = req.body;
+
+        product.name = name || product.name;
+        product.brand = brand || product.brand;
+        product.priceINR = priceINR || product.priceINR;
+        product.oldPriceINR = oldPriceINR !== undefined ? oldPriceINR : product.oldPriceINR;
+        product.discount = discount !== undefined ? discount : product.discount;
+        product.category = category || product.category;
+
+        if (colors) {
+            product.colors = typeof colors === 'string' ? colors.split(',').map(c => c.trim()).filter(c => c !== '') : colors;
+        }
+        if (size) {
+            product.size = typeof size === 'string' ? size.split(',').map(s => s.trim()).filter(s => s !== '') : size;
+        }
+
+        if (req.file) {
+            const result = await cloudinary.uploader.upload(req.file.path, {
+                folder: 'nenrasha_products',
+                resource_type: 'image'
+            });
+            product.image = result.secure_url;
+            if (fs.existsSync(req.file.path)) {
+                fs.unlinkSync(req.file.path);
+            }
+        } else if (req.body.image) {
+            product.image = req.body.image;
+        }
+
+        const updatedProduct = await product.save();
+        res.status(200).json({
+            success: true,
+            data: updatedProduct
+        });
+
+    } catch (error) {
+        console.error('Update product error:', error);
+        res.status(500).json({ success: false, message: 'Server error updating product' });
+    }
+};
+
+// @desc    Delete a product
+// @route   DELETE /api/products/:id
+// @access  Private/Admin
+exports.deleteProduct = async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id);
+
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        // Check if the user is the one who created the product
+        if (product.createdBy.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ 
+                success: false, 
+                message: 'Not authorized: Only the admin who listed this product can delete it' 
+            });
+        }
+
+        await Product.findByIdAndDelete(req.params.id);
+        res.status(200).json({ success: true, message: 'Product removed' });
+
+    } catch (error) {
+        console.error('Delete product error:', error);
+        res.status(500).json({ success: false, message: 'Server error deleting product' });
     }
 };
