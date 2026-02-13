@@ -1,16 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { 
     Box, Container, TextField, Button, Typography, Alert, MenuItem, 
     Grid, Paper, IconButton, Stack, Chip, InputAdornment, useTheme
 } from '@mui/material';
 import { CloudUpload, Add } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 
 const categories = ['Watches & Glasses', 'Shoes', 'Classic', 'Genz', 'Traditional', 'Accessories'];
 const commonSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '7', '8', '9', '10', '11']; 
 
 function AddProduct() {
+    const { id } = useParams();
+    const isEdit = Boolean(id);
     const { user } = useAuth();
     const navigate = useNavigate();
     const theme = useTheme();
@@ -22,7 +24,7 @@ function AddProduct() {
     const [oldPriceINR, setOldPriceINR] = useState('');
     const [discount, setDiscount] = useState(0);
     const [category, setCategory] = useState('');
-    const [description, setDescription] = useState(''); // Added description support if backend supports it later
+    const [description, setDescription] = useState('');
     
     // Complex States
     const [imageFile, setImageFile] = useState(null);
@@ -36,6 +38,45 @@ function AddProduct() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
+
+    // Fetch product if editing
+    useEffect(() => {
+        if (isEdit) {
+            setLoading(true);
+            fetch(`http://localhost:5000/api/products/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const product = data.data;
+                        
+                        // Check ownership
+                        if (product.createdBy !== user._id && product.createdBy !== user.id) {
+                            setError('You are not authorized to edit this product');
+                            setLoading(false);
+                            return;
+                        }
+
+                        setName(product.name);
+                        setBrand(product.brand);
+                        setPriceINR(product.priceINR);
+                        setOldPriceINR(product.oldPriceINR || '');
+                        setDiscount(product.discount || 0);
+                        setCategory(product.category);
+                        setImagePreview(product.image);
+                        setColors(product.colors || []);
+                        setSizes(product.size || []);
+                    } else {
+                        setError('Product not found');
+                    }
+                    setLoading(false);
+                })
+                .catch(err => {
+                    console.error(err);
+                    setError('Error loading product');
+                    setLoading(false);
+                });
+        }
+    }, [id, isEdit, user]);
 
     // Handlers
     const handleImageChange = (e) => {
@@ -104,21 +145,29 @@ function AddProduct() {
                 headers['Authorization'] = `Bearer ${user.token}`;
             }
 
-            const res = await fetch('http://localhost:5000/api/products', {
-                method: 'POST',
+            const url = isEdit 
+                ? `http://localhost:5000/api/products/${id}` 
+                : 'http://localhost:5000/api/products';
+            
+            const method = isEdit ? 'PUT' : 'POST';
+
+            const res = await fetch(url, {
+                method: method,
                 headers: headers,
-                body: formData // No Content-Type header, browser sets it with boundary
+                body: formData 
             });
 
             const data = await res.json();
             if (data.success) {
-                setSuccess('Product added successfully!');
-                // Reset form
-                setName(''); setBrand(''); setPriceINR(''); setOldPriceINR(''); 
-                setDiscount(0); setCategory(''); setImageFile(null); setImagePreview(null);
-                setColors([]); setSizes([]);
+                setSuccess(isEdit ? 'Product updated successfully!' : 'Product added successfully!');
+                if (!isEdit) {
+                    // Reset form only if adding
+                    setName(''); setBrand(''); setPriceINR(''); setOldPriceINR(''); 
+                    setDiscount(0); setCategory(''); setImageFile(null); setImagePreview(null);
+                    setColors([]); setSizes([]);
+                }
             } else {
-                setError(data.message || 'Failed to add product');
+                setError(data.message || `Failed to ${isEdit ? 'update' : 'add'} product`);
             }
         } catch (err) {
             console.error(err);
@@ -144,7 +193,7 @@ function AddProduct() {
         <Box sx={{ minHeight: '100vh', bgcolor: '#f4f6f8', py: 4 }}>
             <Container maxWidth="lg">
                 <Typography variant="h4" fontWeight="bold" sx={{ mb: 4, color: '#1a1a1a' }}>
-                    Listing New Product
+                    {isEdit ? 'Edit Product' : 'Listing New Product'}
                 </Typography>
 
                 <Grid container spacing={4}>
@@ -278,7 +327,7 @@ function AddProduct() {
                                         '&:hover': { bgcolor: '#333' }
                                     }}
                                 >
-                                    {loading ? 'Publishing...' : 'Publish Product'}
+                                    {loading ? 'Processing...' : (isEdit ? 'Update Product' : 'Publish Product')}
                                 </Button>
                             </form>
                         </Paper>
