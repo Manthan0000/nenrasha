@@ -29,6 +29,7 @@ function App() {
         <Route path='/category/:categoryName' element={<CategoryPage />} />
         <Route path='/product/:id' element={<ProductDetails />} />
         <Route path='/admin/add-product' element={<AddProduct />} />
+        <Route path='/admin/edit-product/:id' element={<AddProduct />} />
       </Routes>
     </AuthProvider>
   )
