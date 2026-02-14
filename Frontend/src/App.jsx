@@ -9,6 +9,7 @@ import MyAccount from './pages/MyAccount.jsx';
 import CategoryPage from './pages/CategoryPage.jsx';
 import ProductDetails from './pages/ProductDetails.jsx';
 import AddProduct from './pages/AddProduct.jsx';
+import Products from './pages/Products.jsx';
 
 import Navbar from './components/Navbar.jsx';
 import TopBar from './components/TopBar.jsx';
@@ -28,6 +29,7 @@ function App() {
         <Route path='/my-account' element={<MyAccount />}/>
         <Route path='/category/:categoryName' element={<CategoryPage />} />
         <Route path='/product/:id' element={<ProductDetails />} />
+        <Route path='/products' element={<Products />} />
         <Route path='/admin/add-product' element={<AddProduct />} />
         <Route path='/admin/edit-product/:id' element={<AddProduct />} />
       </Routes>
