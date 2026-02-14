@@ -68,7 +68,20 @@ exports.incrementVisits = async (req, res) => {
 // @access  Public
 exports.getProducts = async (req, res) => {
     try {
-        const products = await Product.find({});
+        const { sort } = req.query;
+        let query = Product.find({});
+
+        if (sort === 'popularity') {
+            query = query.sort({ visits: -1 });
+        } else if (sort === 'newest') {
+            query = query.sort({ createdAt: -1 });
+        } else if (sort === 'price-low-high') {
+            query = query.sort({ priceINR: 1 });
+        } else if (sort === 'price-high-low') {
+            query = query.sort({ priceINR: -1 });
+        }
+
+        const products = await query;
         res.status(200).json({
             success: true,
             count: products.length,

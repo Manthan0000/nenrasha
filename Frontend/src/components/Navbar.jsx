@@ -68,9 +68,12 @@ function Navbar() {
             Home
           </Button>
           <Button 
+            component={Link}
+            to="/products"
             sx={{
-              color: '#000',
+              color: location.pathname === '/products' ? '#d32f2f' : '#000',
               textTransform: 'none',
+              fontWeight: location.pathname === '/products' ? 'bold' : 'normal',
               fontSize: '15px',
               '&:hover': { backgroundColor: 'transparent' }
             }}
@@ -78,9 +81,12 @@ function Navbar() {
             Shop
           </Button>
           <Button 
+            component={Link}
+            to="/products"
             sx={{
-              color: '#000',
+              color: location.pathname === '/products' ? '#d32f2f' : '#000',
               textTransform: 'none',
+              fontWeight: location.pathname === '/products' ? 'bold' : 'normal',
               fontSize: '15px',
               '&:hover': { backgroundColor: 'transparent' }
             }}
