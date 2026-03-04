@@ -295,3 +295,38 @@ exports.deleteProduct = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error deleting product' });
     }
 };
+
+// @desc    Get products created by the user
+// @route   GET /api/products/my-listings
+// @access  Private/Admin
+exports.getMyListings = async (req, res) => {
+    try {
+        const products = await Product.find({ createdBy: req.user._id });
+        res.status(200).json({
+            success: true,
+            data: products
+        });
+    } catch (error) {
+        console.error('Get my listings error:', error);
+        res.status(500).json({ success: false, message: 'Server error retrieving your listings' });
+    }
+};
+
+// @desc    Get user's liked products
+// @route   GET /api/products/liked
+// @access  Private
+exports.getLikedProducts = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).populate('likedProducts');
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        res.status(200).json({
+            success: true,
+            data: user.likedProducts
+        });
+    } catch (error) {
+        console.error('Get liked products error:', error);
+        res.status(500).json({ success: false, message: 'Server error retrieving liked products' });
+    }
+};
