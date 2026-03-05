@@ -97,8 +97,7 @@ function ProductCard({ product }){
             sx={{
                 position: "relative",
                 width: "100%",
-                aspectRatio: "3/4",
-                minHeight: { xs: '280px', sm: '320px', md: '360px' },
+                height: { xs: '280px', sm: '320px', md: '360px' },
                 overflow: "hidden",
                 backgroundColor: "#f8f9fa",
                 cursor: 'pointer',

@@ -241,7 +241,10 @@ function ProfileSidebar({ open, onClose }) {
                     <Button 
                         variant="outlined" 
                         fullWidth 
-                        onClick={() => setIsEditing(true)}
+                        onClick={() => {
+                            onClose();
+                            navigate('/my-account');
+                        }}
                         sx={{ 
                             mt: 2, 
                             color: '#000', 
@@ -250,7 +253,7 @@ function ProfileSidebar({ open, onClose }) {
                             '&:hover': { borderColor: '#333', backgroundColor: '#f9f9f9' }
                         }}
                     >
-                        Edit Profile
+                        My Account
                     </Button>
 
                     <Button 

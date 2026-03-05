@@ -9,11 +9,14 @@ import MyAccount from './pages/MyAccount.jsx';
 import CategoryPage from './pages/CategoryPage.jsx';
 import ProductDetails from './pages/ProductDetails.jsx';
 import AddProduct from './pages/AddProduct.jsx';
+import MyListings from './pages/MyListings.jsx';
 import Products from './pages/Products.jsx';
+import LikedProducts from './pages/LikedProducts.jsx';
 
 import Navbar from './components/Navbar.jsx';
 import TopBar from './components/TopBar.jsx';
 import { AuthProvider } from './context/AuthContext';
+
 function App() {
   return (
     <AuthProvider>
@@ -30,8 +33,10 @@ function App() {
         <Route path='/category/:categoryName' element={<CategoryPage />} />
         <Route path='/product/:id' element={<ProductDetails />} />
         <Route path='/products' element={<Products />} />
+        <Route path='/liked-products' element={<LikedProducts />} />
         <Route path='/admin/add-product' element={<AddProduct />} />
         <Route path='/admin/edit-product/:id' element={<AddProduct />} />
+        <Route path='/admin/my-listings' element={<MyListings />} />
       </Routes>
     </AuthProvider>
   )
