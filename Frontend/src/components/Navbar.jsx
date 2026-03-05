@@ -242,7 +242,7 @@ function Navbar() {
                     <PersonIcon />
                 )}
               </IconButton>
-              <IconButton sx={{ color: '#000' }}>
+              <IconButton component={Link} to="/liked-products" sx={{ color: '#000' }}>
                 <FavoriteIcon />
               </IconButton>
               <IconButton sx={{ color: '#000', position: 'relative' }}>
