@@ -287,6 +287,26 @@ exports.deleteProduct = async (req, res) => {
             });
         }
 
+        // Delete image from Cloudinary if it's a Cloudinary URL
+        if (product.image && product.image.includes('cloudinary.com')) {
+            try {
+                // Extract publicId from the Cloudinary URL
+                // URL format: https://res.cloudinary.com/<cloud_name>/image/upload/v<version>/<folder>/<filename>
+                const urlParts = product.image.split('/');
+                const uploadIndex = urlParts.indexOf('upload');
+                if (uploadIndex !== -1) {
+                    // Join everything after 'upload/v<version>/' → folder/filename (without extension)
+                    const publicIdWithExtension = urlParts.slice(uploadIndex + 2).join('/');
+                    const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, ''); // Remove file extension
+                    await cloudinary.uploader.destroy(publicId);
+                    console.log(`Deleted Cloudinary image: ${publicId}`);
+                }
+            } catch (cloudinaryError) {
+                // Log the error but don't prevent the product from being deleted
+                console.error('Cloudinary image deletion error:', cloudinaryError);
+            }
+        }
+
         await Product.findByIdAndDelete(req.params.id);
         res.status(200).json({ success: true, message: 'Product removed' });
 
