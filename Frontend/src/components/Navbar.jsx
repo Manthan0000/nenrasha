@@ -7,12 +7,14 @@ import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 import ProfileSidebar from './ProfileSidebar';
 
 function Navbar() {
   const location = useLocation();
   const [pagesMenuOpen, setPagesMenuOpen] = useState(false);
   const { user, logout } = useAuth();
+  const { getCartCount } = useCart();
   const [profileOpen, setProfileOpen] = useState(false);
 
   return (
@@ -245,8 +247,8 @@ function Navbar() {
               <IconButton component={Link} to="/liked-products" sx={{ color: '#000' }}>
                 <FavoriteIcon />
               </IconButton>
-              <IconButton sx={{ color: '#000', position: 'relative' }}>
-                <Badge badgeContent={0} color="error">
+              <IconButton component={Link} to="/cart" sx={{ color: '#000', position: 'relative' }}>
+                <Badge badgeContent={getCartCount()} color="error">
                   <ShoppingBagIcon />
                 </Badge>
               </IconButton>

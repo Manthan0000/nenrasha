@@ -47,10 +47,9 @@ function Footer(){
         informationLinks.push({ name: 'Register', path: '/register' });
     }
     const customerServicesLinks = [
-        'Shipping',
-        'Return & Refund',
-        'Privacy Policy',
-        'Terms & Conditions',
+        { name: 'Return & Refund', path: '/return-refund' },
+        { name: 'Privacy Policy', path: '/privacy-policy' },
+        { name: 'Terms & Conditions', path: '/terms-conditions' },
     ];
 
     return(
@@ -170,8 +169,9 @@ function Footer(){
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                             {customerServicesLinks.map((link) => (
                                 <Link
-                                    key={link}
-                                    href="#"
+                                    key={link.name}
+                                    component={RouterLink}
+                                    to={link.path}
                                     sx={{
                                         color: 'text.secondary',
                                         textDecoration: 'none',
@@ -179,7 +179,7 @@ function Footer(){
                                         '&:hover': { color: '#d32f2f' },
                                     }}
                                 >
-                                    {link}
+                                    {link.name}
                                 </Link>
                             ))}
                         </Box>
@@ -218,11 +218,11 @@ function Footer(){
                         </Box>
                         <Typography sx={{ fontSize: '12px', color: 'text.secondary' }}>
                             By clicking subscribe, you agree to the{' '}
-                            <Link href="#" sx={{ textDecoration: 'underline', color: 'inherit', fontWeight: 'bold' }}>
+                            <Link component={RouterLink} to="/terms-conditions" sx={{ textDecoration: 'underline', color: 'inherit', fontWeight: 'bold' }}>
                                 Terms of Service
                             </Link>{' '}
                             and{' '}
-                            <Link href="#" sx={{ textDecoration: 'underline', color: 'inherit', fontWeight: 'bold' }}>
+                            <Link component={RouterLink} to="/privacy-policy" sx={{ textDecoration: 'underline', color: 'inherit', fontWeight: 'bold' }}>
                                 Privacy Policy
                             </Link>
                         </Typography>
