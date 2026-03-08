@@ -6,10 +6,9 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useAuth } from '../context/AuthContext';
-
-
-
-
+import { useCart } from '../context/CartContext';
+import { useDialog } from '../context/DialogContext';
+import { useState } from 'react';
 
 const formatPrice = (priceINR) => {
     return `₹${priceINR.toLocaleString('en-IN')}`;
@@ -19,9 +18,20 @@ const getOldPrice = (oldPriceINR) => {
     return oldPriceINR ? `₹${oldPriceINR.toLocaleString('en-IN')}` : null;
 };
 
+// ─── FIXED DIMENSIONS ───────────────────────────────────────────────────────
+// These are the ONLY values that control card height.
+// Change them here and every grid/carousel will stay consistent.
+const IMAGE_HEIGHT = 280;   // px — image section height
+const CONTENT_HEIGHT = 148; // px — text + price section height
+// Total card height = IMAGE_HEIGHT + CONTENT_HEIGHT = 428 px
+// ────────────────────────────────────────────────────────────────────────────
+
 function ProductCard({ product }){
     const navigate = useNavigate();
     const { user, toggleLike } = useAuth();
+    const { addToCart } = useCart();
+    const [addingToCart, setAddingToCart] = useState(false);
+    const { showAlert, showConfirm } = useDialog();
     
     const isLiked = user?.likedProducts?.includes(product.id);
 
@@ -38,7 +48,8 @@ function ProductCard({ product }){
 
     const handleDelete = async (e) => {
         e.stopPropagation();
-        if (window.confirm('Are you sure you want to delete this product?')) {
+        const confirmed = await showConfirm('Are you sure you want to delete this product? This action cannot be undone.', { title: 'Delete Product', severity: 'error' });
+        if (confirmed) {
             try {
                 const res = await fetch(`http://localhost:5000/api/products/${product.id}`, {
                     method: 'DELETE',
@@ -48,15 +59,38 @@ function ProductCard({ product }){
                 });
                 const data = await res.json();
                 if (data.success) {
-                    alert('Product deleted successfully');
+                    await showAlert('Product deleted successfully.', { severity: 'success' });
                     window.location.reload(); 
                 } else {
-                    alert(data.message);
+                    await showAlert(data.message || 'Failed to delete product.', { severity: 'error' });
                 }
             } catch (err) {
                 console.error(err);
-                alert('Error deleting product');
+                await showAlert('An error occurred while deleting the product.', { severity: 'error' });
             }
+        }
+    };
+
+    const handleAddToCart = async (e) => {
+        e.stopPropagation();
+        if (!user) {
+            await showAlert('Please login to add items to your cart.', { title: 'Login Required', severity: 'warning' });
+            navigate('/login');
+            return;
+        }
+        
+        // Defaults if variant not selected
+        const defaultColor = product.colors && product.colors.length > 0 ? product.colors[0] : '';
+        const defaultSize = product.size && product.size.length > 0 ? product.size[0] : '';
+
+        setAddingToCart(true);
+        const res = await addToCart(product.id, 1, defaultColor, defaultSize);
+        setAddingToCart(false);
+        
+        if (res.success) {
+            await showAlert(`${product.name} has been added to your cart!`, { title: 'Added to Cart', severity: 'success' });
+        } else {
+            await showAlert(res.message || 'Failed to add to cart. Please try again.', { severity: 'error' });
         }
     };
 
@@ -68,13 +102,16 @@ function ProductCard({ product }){
                 borderRadius: 2,
                 boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                 position: 'relative',
-                height: '100%',
+                /* KEY FIX: explicit fixed height, never driven by image */
+                width: '100%',
+                height: `${IMAGE_HEIGHT + CONTENT_HEIGHT}px`,
+                minHeight: `${IMAGE_HEIGHT + CONTENT_HEIGHT}px`,
+                maxHeight: `${IMAGE_HEIGHT + CONTENT_HEIGHT}px`,
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
                 backgroundColor: '#fff',
                 transition: 'all 0.3s ease-in-out',
-                width: '100%',
                 '&:hover': {
                     boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
                     transform: 'translateY(-4px)',
@@ -91,18 +128,20 @@ function ProductCard({ product }){
                 },
             }}
         >
-        {/* IMAGE BOX */}
+        {/* IMAGE BOX — fixed pixel height, never changes */}
         <Box
             className="product-image-container"
             sx={{
                 position: "relative",
                 width: "100%",
-                height: { xs: '280px', sm: '320px', md: '360px' },
+                height: `${IMAGE_HEIGHT}px`,
+                minHeight: `${IMAGE_HEIGHT}px`,
+                maxHeight: `${IMAGE_HEIGHT}px`,
+                flexShrink: 0,
                 overflow: "hidden",
                 backgroundColor: "#f8f9fa",
                 cursor: 'pointer',
                 borderRadius: '8px 8px 0 0',
-                flexShrink: 0,
             }}
             onClick={handleProductClick}
         >
@@ -118,7 +157,9 @@ function ProductCard({ product }){
                 sx={{
                     width: "100%",
                     height: "100%",
-                    objectFit: "cover",
+                    objectFit: "cover",   // fills the fixed box, crops excess
+                    objectPosition: "center top", // show top of image (faces/key product area)
+                    display: 'block',
                     transition: 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
             />
@@ -144,6 +185,7 @@ function ProductCard({ product }){
                     -{product.discount}% OFF
                 </Box>
             )}
+
             {/* Action Icons */}
             <Box
                 className="product-actions"
@@ -206,7 +248,6 @@ function ProductCard({ product }){
                             size="small"
                             onClick={(e) => {
                                 e.stopPropagation();
-                                // Assuming we'll have an edit route or handle it in AddProduct
                                 navigate(`/admin/edit-product/${product.id}`);
                             }}
                             sx={{
@@ -251,6 +292,8 @@ function ProductCard({ product }){
                 className="add-to-cart"
                 variant="contained"
                 fullWidth
+                onClick={handleAddToCart}
+                disabled={addingToCart}
                 sx={{
                     position: 'absolute',
                     bottom: 0,
@@ -275,35 +318,40 @@ function ProductCard({ product }){
                     },
                 }}
             >
-                Add to Cart
+                {addingToCart ? 'Adding...' : 'Add to Cart'}
             </Button>
         </Box>
 
-        {/* CONTENT */}
+        {/* CONTENT — fixed pixel height */}
         <CardContent sx={{ 
             px: { xs: 1.5, sm: 2 }, 
-            pt: 2.5, 
-            pb: 2.5,
-            flexGrow: 0,
+            pt: 2,
+            pb: '12px !important',
+            /* KEY FIX: exact fixed height for content area */
+            height: `${CONTENT_HEIGHT}px`,
+            minHeight: `${CONTENT_HEIGHT}px`,
+            maxHeight: `${CONTENT_HEIGHT}px`,
+            flexShrink: 0,
             display: 'flex',
             flexDirection: 'column',
+            overflow: 'hidden',
             backgroundColor: '#fff',
-            minHeight: { xs: '120px', sm: '130px' }
         }}>
             <Typography 
                 variant="body2" 
                 color="text.secondary" 
                 noWrap 
                 sx={{ 
-                    mb: 0.75,
-                    fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                    mb: 0.5,
+                    fontSize: { xs: '0.72rem', sm: '0.78rem' },
                     textTransform: 'uppercase',
                     letterSpacing: 1,
                     fontWeight: 600,
-                    opacity: 0.7,
-                    height: '20px',
-                    display: 'flex',
-                    alignItems: 'center'
+                    opacity: 0.65,
+                    lineHeight: 1.4,
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                    textOverflow: 'ellipsis',
                 }}
             >
                 {product.brand}
@@ -311,17 +359,19 @@ function ProductCard({ product }){
             <Typography 
                 fontWeight={600} 
                 sx={{ 
-                    mb: 1.5, 
-                    fontSize: { xs: '15px', sm: '16px' },
+                    mb: 'auto', 
+                    fontSize: { xs: '14px', sm: '15px' },
                     lineHeight: 1.4,
                     color: '#1a1a1a',
+                    /* clamp to exactly 2 lines, never more */
                     display: '-webkit-box',
                     WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                    minHeight: { xs: '44px', sm: '48px' },
-                    maxHeight: { xs: '44px', sm: '48px' }
+                    flexShrink: 0,
+                    height: '42px',
+                    minHeight: '42px',
                 }}
             >
                 {product.name}
@@ -331,8 +381,9 @@ function ProductCard({ product }){
                 display: 'flex', 
                 gap: 1.5, 
                 alignItems: 'center', 
-                flexWrap: 'wrap',
-                mt: 'auto'
+                flexWrap: 'nowrap',
+                mt: 1,
+                flexShrink: 0,
             }}>
                 {product.oldPriceINR ? (
                     <>
@@ -340,8 +391,9 @@ function ProductCard({ product }){
                             sx={{
                                 textDecoration: 'line-through',
                                 color: 'text.secondary',
-                                fontSize: { xs: '13px', sm: '14px' },
-                                opacity: 0.6
+                                fontSize: { xs: '12px', sm: '13px' },
+                                opacity: 0.6,
+                                whiteSpace: 'nowrap',
                             }}
                         >
                             {getOldPrice(product.oldPriceINR)}
@@ -349,9 +401,10 @@ function ProductCard({ product }){
                         <Typography 
                             fontWeight={700} 
                             sx={{ 
-                                fontSize: { xs: '17px', sm: '19px' }, 
+                                fontSize: { xs: '16px', sm: '18px' }, 
                                 color: '#d32f2f',
-                                letterSpacing: 0.5
+                                letterSpacing: 0.5,
+                                whiteSpace: 'nowrap',
                             }}
                         >
                             {formatPrice(product.priceINR)}
@@ -361,9 +414,10 @@ function ProductCard({ product }){
                     <Typography 
                         fontWeight={700} 
                         sx={{ 
-                            fontSize: { xs: '17px', sm: '19px' },
+                            fontSize: { xs: '16px', sm: '18px' },
                             color: '#1a1a1a',
-                            letterSpacing: 0.5
+                            letterSpacing: 0.5,
+                            whiteSpace: 'nowrap',
                         }}
                     >
                         {formatPrice(product.priceINR)}

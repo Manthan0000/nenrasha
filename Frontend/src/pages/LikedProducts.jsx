@@ -118,7 +118,7 @@ function LikedProducts() {
                 <CircularProgress sx={{ color: '#111' }} />
               </Box>
             ) : likedProducts.length > 0 ? (
-              <Grid container spacing={3}>
+              <Grid container spacing={3} alignItems="stretch">
                 {likedProducts.map((product) => (
                   <Grid item xs={12} sm={6} md={3} key={product.id} sx={{ display: 'flex' }}>
                     <ProductCard product={product} />
