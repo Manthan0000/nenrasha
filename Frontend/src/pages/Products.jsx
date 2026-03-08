@@ -144,7 +144,7 @@ function Products() {
                         </Typography>
                     </Paper>
                 ) : (
-                    <Grid container spacing={2.5} justifyContent="center" alignItems="stretch">
+                    <Grid container spacing={2.5} alignItems="stretch">
                         {products.map((product) => (
                             <Grid item xs={12} sm={6} md={3} key={product.id} sx={{ display: 'flex' }}>
                                 <ProductCard product={product} />
