@@ -4,13 +4,19 @@ import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useDialog } from '../context/DialogContext';
 import LogoutIcon from '@mui/icons-material/Logout';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import PersonIcon from '@mui/icons-material/Person';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 const API_URL = 'http://localhost:5000/api/auth';
 
 function ProfileSidebar({ open, onClose }) {
-  const { user, login, logout } = useAuth(); // login acts as updateUser here
+  const { user, login, logout } = useAuth();
   const navigate = useNavigate();
+  const { showAlert } = useDialog();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -82,11 +88,11 @@ function ProfileSidebar({ open, onClose }) {
             login(result.data); // Update context
             setIsEditing(false); // Go to view mode
         } else {
-            alert(result.message || 'Failed to update profile');
+            await showAlert(result.message || 'Failed to update profile. Please try again.', { severity: 'error' });
         }
     } catch (error) {
         console.error('Profile update error', error);
-        alert('Network error');
+        await showAlert('Network error. Please check your connection and try again.', { severity: 'error' });
     } finally {
         setLoading(false);
     }
@@ -223,34 +229,82 @@ function ProfileSidebar({ open, onClose }) {
                 </Box>
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <Box>
-                        <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>Mobile</Typography>
-                        <Typography variant="body1">{user.mobile || 'Not set'}</Typography>
-                    </Box>
-                    <Divider />
-                     <Box>
-                        <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>Gender</Typography>
-                        <Typography variant="body1">{user.gender || 'Not set'}</Typography>
-                    </Box>
-                    <Divider />
-                     <Box>
-                        <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>Address</Typography>
-                        <Typography variant="body1">{user.address || 'Not set'}</Typography>
-                    </Box>
-                    <Divider />
+                    
                     <Button 
-                        variant="outlined" 
+                        variant="text" 
                         fullWidth 
+                        startIcon={<FavoriteIcon sx={{ color: '#d32f2f' }} />}
+                        onClick={() => {
+                            onClose();
+                            navigate('/liked-products');
+                        }}
+                        sx={{ 
+                            justifyContent: 'flex-start',
+                            color: '#000', 
+                            py: 1.5,
+                            borderBottom: '1px solid #eee',
+                            borderRadius: 0,
+                            '&:hover': { backgroundColor: '#f9f9f9', color: '#d32f2f' }
+                        }}
+                    >
+                        My Liked Products
+                    </Button>
+
+                    <Button 
+                        variant="text" 
+                        fullWidth 
+                        startIcon={<ShoppingCartIcon sx={{ color: '#000' }} />}
+                        onClick={() => {
+                            onClose();
+                            navigate('/cart');
+                        }}
+                        sx={{ 
+                            justifyContent: 'flex-start',
+                            color: '#000', 
+                            py: 1.5,
+                            borderBottom: '1px solid #eee',
+                            borderRadius: 0,
+                            '&:hover': { backgroundColor: '#f9f9f9', color: '#000' }
+                        }}
+                    >
+                        My Cart
+                    </Button>
+
+                    <Button 
+                        variant="text" 
+                        fullWidth 
+                        startIcon={<ShoppingBagIcon sx={{ color: '#000' }} />}
+                        onClick={() => {
+                            onClose();
+                            navigate('/my-orders');
+                        }}
+                        sx={{ 
+                            justifyContent: 'flex-start',
+                            color: '#000', 
+                            py: 1.5,
+                            borderBottom: '1px solid #eee',
+                            borderRadius: 0,
+                            '&:hover': { backgroundColor: '#f9f9f9', color: '#d32f2f' }
+                        }}
+                    >
+                        My Orders
+                    </Button>
+
+                    <Button 
+                        variant="text" 
+                        fullWidth 
+                        startIcon={<PersonIcon sx={{ color: '#000' }} />}
                         onClick={() => {
                             onClose();
                             navigate('/my-account');
                         }}
                         sx={{ 
-                            mt: 2, 
+                            justifyContent: 'flex-start',
                             color: '#000', 
-                            borderColor: '#000', 
+                            py: 1.5,
+                            borderBottom: '1px solid #eee',
                             borderRadius: 0,
-                            '&:hover': { borderColor: '#333', backgroundColor: '#f9f9f9' }
+                            '&:hover': { backgroundColor: '#f9f9f9', color: '#d32f2f' }
                         }}
                     >
                         My Account
