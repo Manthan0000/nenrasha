@@ -204,14 +204,7 @@ function CategoryPage() {
                     <Grid 
                         container 
                         spacing={{ xs: 2, sm: 2.5, md: 2.5 }}
-                        justifyContent="center"
-                        sx={{
-                            '& .MuiGrid-item': {
-                                display: 'flex',
-                                flexDirection: 'column',
-                                height: 'auto'
-                            }
-                        }}
+                        alignItems="stretch"
                     >
                         {filteredProducts.map((product) => (
                             <Grid 
@@ -221,13 +214,7 @@ function CategoryPage() {
                                 md={3} 
                                 lg={3} 
                                 key={product.id}
-                                sx={{
-                                    transition: 'transform 0.2s ease-in-out',
-                                    display: 'flex',
-                                    '&:hover': {
-                                        transform: 'translateY(-4px)',
-                                    }
-                                }}
+                                sx={{ display: 'flex' }}
                             >
                                 <ProductCard product={product} />
                             </Grid>

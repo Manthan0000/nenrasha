@@ -1,26 +1,29 @@
 import { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Card, 
-  CardContent, 
-  TextField, 
-  Button, 
-  Grid, 
-  Avatar, 
-  Divider, 
-  Stack, 
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  TextField,
+  Button,
+  Grid,
+  Avatar,
+  Divider,
+  Stack,
   IconButton,
   CircularProgress,
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  Chip,
+  Tooltip,
 } from '@mui/material';
 import Container from '../components/Container';
 import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
 import { useAuth } from '../context/AuthContext';
+import { useDialog } from '../context/DialogContext';
 import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import HomeIcon from '@mui/icons-material/Home';
@@ -32,12 +35,19 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import { useNavigate, Link } from 'react-router-dom';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import ProductCard from '../components/ProductCard';
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import CloseIcon from '@mui/icons-material/Close';
 
 function MyAccount() {
   const { user, logout, login } = useAuth();
   const navigate = useNavigate();
+  const { showAlert } = useDialog();
   const [likedProducts, setLikedProducts] = useState([]);
   const [activeTab, setActiveTab] = useState('info');
   const [loading, setLoading] = useState(false);
@@ -71,18 +81,11 @@ function MyAccount() {
     setLoading(true);
     try {
       const response = await fetch('http://localhost:5000/api/products/liked', {
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-        }
+        headers: { 'Authorization': `Bearer ${user.token}` }
       });
       const data = await response.json();
       if (data.success) {
-        // Map backend _id to frontend id for ProductCard
-        const mappedProducts = data.data.map(p => ({
-            ...p,
-            id: p._id
-        }));
-        setLikedProducts(mappedProducts);
+        setLikedProducts(data.data.map(p => ({ ...p, id: p._id })));
       }
     } catch (error) {
       console.error('Error fetching liked products:', error);
@@ -91,31 +94,15 @@ function MyAccount() {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
-
-  const handleEditClick = () => {
-    setEditDialogOpen(true);
-  };
-
-  const handleEditClose = () => {
-    setEditDialogOpen(false);
-  };
-
-  const handleInputChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
-  };
+  const handleLogout = () => { logout(); navigate('/'); };
+  const handleEditClick = () => setEditDialogOpen(true);
+  const handleEditClose = () => setEditDialogOpen(false);
+  const handleInputChange = (e) => setEditData({ ...editData, [e.target.name]: e.target.value });
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-        setEditData({
-            ...editData,
-            profilePhoto: file,
-            profilePhotoPreview: URL.createObjectURL(file),
-        });
+      setEditData({ ...editData, profilePhoto: file, profilePhotoPreview: URL.createObjectURL(file) });
     }
   };
 
@@ -127,510 +114,576 @@ function MyAccount() {
       formData.append('name', editData.name);
       formData.append('mobile', editData.mobile);
       formData.append('address', editData.address);
-      if (editData.profilePhoto) {
-          formData.append('profilePhoto', editData.profilePhoto);
-      }
+      if (editData.profilePhoto) formData.append('profilePhoto', editData.profilePhoto);
 
       const response = await fetch('http://localhost:5000/api/auth/profile', {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-        },
+        headers: { 'Authorization': `Bearer ${user.token}` },
         body: formData
       });
       const data = await response.json();
       if (data.success) {
-        // Update local state via login function (which sets localStorage and state)
         login({ ...user, ...data.data });
         setEditDialogOpen(false);
       } else {
-        alert(data.message);
+        await showAlert(data.message || 'Failed to update profile.', { severity: 'error' });
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert('Failed to update profile');
+      await showAlert('Failed to update profile. Please check your connection and try again.', { severity: 'error' });
     } finally {
       setUpdating(false);
     }
   };
 
-  const renderInfoItem = (icon, label, value) => (
-    <Box sx={{ 
-      display: 'flex', 
-      flexDirection: 'column',
-      alignItems: 'flex-start',
-      p: 3, 
-      borderRadius: '20px', 
-      bgcolor: '#fff',
-      border: '1px solid #f0f0f0',
-      transition: 'all 0.2s', 
-      '&:hover': { 
-        borderColor: '#e0e0e0',
-        transform: 'translateY(-2px)',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.04)'
-      } 
-    }}>
-      <Box sx={{ 
-        bgcolor: '#f8f9fa', 
-        p: 1.5, 
-        borderRadius: '12px', 
-        mb: 2,
-        color: '#111',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        {icon}
-      </Box>
-      <Box>
-        <Typography variant="caption" sx={{ color: 'text.secondary', textTransform: 'uppercase', letterSpacing: 1.5, fontWeight: 800, fontSize: '0.7rem' }}>
-          {label}
-        </Typography>
-        <Typography variant="body1" sx={{ fontWeight: 700, color: '#111', mt: 0.5, fontSize: '1.1rem' }}>
-          {value || 'Not provided'}
-        </Typography>
-      </Box>
-    </Box>
-  );
+  // Sidebar nav items
+  const navItems = [
+    { key: 'info', label: 'Account Info', icon: <PersonIcon fontSize="small" /> },
+    { key: 'orders', label: 'My Orders', icon: <ShoppingBagIcon fontSize="small" />, onClick: () => navigate('/my-orders') },
+    { key: 'liked', label: 'Liked Products', icon: <FavoriteIcon fontSize="small" />, onClick: () => navigate('/liked-products') },
+    { key: 'cart', label: 'My Cart', icon: <ShoppingCartIcon fontSize="small" />, onClick: () => navigate('/cart') },
+  ];
+
+  // Quick stat cards
+  const stats = [
+    { label: 'Orders', icon: <ShoppingBagIcon />, color: '#6366f1', bg: 'linear-gradient(135deg,#6366f1,#818cf8)', onClick: () => navigate('/my-orders') },
+    { label: 'Wishlist', icon: <FavoriteIcon />, color: '#ef4444', bg: 'linear-gradient(135deg,#ef4444,#f87171)', onClick: () => navigate('/liked-products') },
+    { label: 'Cart', icon: <ShoppingCartIcon />, color: '#f59e0b', bg: 'linear-gradient(135deg,#f59e0b,#fbbf24)', onClick: () => navigate('/cart') },
+    { label: 'Shipping', icon: <LocalShippingIcon />, color: '#10b981', bg: 'linear-gradient(135deg,#10b981,#34d399)', onClick: () => navigate('/my-orders') },
+  ];
+
+  const infoFields = [
+    { icon: <BadgeIcon />, label: 'Full Name', value: user?.name, color: '#6366f1' },
+    { icon: <EmailIcon />, label: 'Email Address', value: user?.email, color: '#ef4444' },
+    { icon: <PhoneIcon />, label: 'Mobile Number', value: user?.mobile, color: '#f59e0b' },
+    { icon: <HomeIcon />, label: 'Delivery Address', value: user?.address, color: '#10b981' },
+  ];
 
   return (
-    <Box sx={{ backgroundColor: '#f9fafb', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Page Title */}
-      <Box
-        sx={{
-          background: 'linear-gradient(135deg, #111 0%, #333 100%)',
-          py: { xs: 8, md: 10 },
-          textAlign: 'center',
-          color: '#fff',
-          position: 'relative',
-          overflow: 'hidden',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05) 0%, transparent 50%)',
-            pointerEvents: 'none'
-          }
-        }}
-      >
-        <Typography
-          variant="h2"
-          sx={{
-            fontWeight: 900,
-            mb: 1.5,
-            fontSize: { xs: '2.5rem', md: '4rem' },
-            letterSpacing: -1,
-            textShadow: '0 4px 20px rgba(0,0,0,0.5)'
-          }}
-        >
-          My Account
-        </Typography>
-        <Typography sx={{ 
-          fontSize: '13px', 
-          opacity: 0.8, 
-          textTransform: 'uppercase', 
-          letterSpacing: 3,
-          fontWeight: 600
-        }}>
-          Home / Profile Settings
-        </Typography>
+    <Box sx={{ backgroundColor: '#f0f2f5', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+
+      {/* ── Hero Banner ── */}
+      <Box sx={{
+        background: 'linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 50%, #16213e 100%)',
+        py: { xs: 7, md: 9 },
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        {/* Decorative blobs */}
+        <Box sx={{ position: 'absolute', top: -80, right: -80, width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <Box sx={{ position: 'absolute', bottom: -60, left: -60, width: 260, height: 260, borderRadius: '50%', background: 'radial-gradient(circle, rgba(239,68,68,0.18) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+        <Container>
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: { xs: 'center', md: 'center' }, gap: 4 }}>
+            {user && (
+              <>
+                {/* Avatar */}
+                <Box sx={{ position: 'relative', flexShrink: 0 }}>
+                  <Box sx={{
+                    width: { xs: 100, md: 120 }, height: { xs: 100, md: 120 },
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg,#6366f1,#ef4444)',
+                    p: '3px',
+                    boxShadow: '0 0 40px rgba(99,102,241,0.4)'
+                  }}>
+                    <Avatar
+                      src={user.profilePhoto || ''}
+                      sx={{ width: '100%', height: '100%', bgcolor: '#1e1e2e', color: '#aaa', border: '3px solid #0f0f0f' }}
+                    >
+                      {!user.profilePhoto && <PersonIcon sx={{ fontSize: 50 }} />}
+                    </Avatar>
+                  </Box>
+                  <Tooltip title="Edit Profile">
+                    <IconButton
+                      onClick={handleEditClick}
+                      size="small"
+                      sx={{
+                        position: 'absolute', bottom: 2, right: 2,
+                        bgcolor: '#6366f1', color: '#fff', width: 30, height: 30,
+                        '&:hover': { bgcolor: '#4f46e5' },
+                        boxShadow: '0 4px 14px rgba(99,102,241,0.5)',
+                      }}
+                    >
+                      <EditIcon sx={{ fontSize: 14 }} />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+
+                {/* Name + role */}
+                <Box sx={{ textAlign: { xs: 'center', md: 'left' } }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, justifyContent: { xs: 'center', md: 'flex-start' }, mb: 1 }}>
+                    <Typography variant="h3" sx={{ fontWeight: 900, color: '#fff', fontSize: { xs: '1.8rem', md: '2.5rem' }, letterSpacing: -1 }}>
+                      {user.name}
+                    </Typography>
+                    <VerifiedUserIcon sx={{ color: '#6366f1', fontSize: 28 }} />
+                  </Box>
+                  <Typography sx={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.95rem', mb: 2 }}>{user.email}</Typography>
+                  <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', justifyContent: { xs: 'center', md: 'flex-start' } }}>
+                    <Chip
+                      label={user.role?.toUpperCase()}
+                      size="small"
+                      sx={{
+                        bgcolor: user.role === 'admin' ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.1)',
+                        color: user.role === 'admin' ? '#a5b4fc' : 'rgba(255,255,255,0.7)',
+                        fontWeight: 800, letterSpacing: 1.5, fontSize: '0.65rem',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        backdropFilter: 'blur(10px)',
+                      }}
+                    />
+                    <Chip
+                      label="Active Member"
+                      size="small"
+                      sx={{
+                        bgcolor: 'rgba(16,185,129,0.2)', color: '#6ee7b7',
+                        fontWeight: 700, fontSize: '0.65rem', letterSpacing: 1,
+                        border: '1px solid rgba(16,185,129,0.3)',
+                      }}
+                    />
+                  </Box>
+                </Box>
+
+                {/* Edit button (desktop) */}
+                <Box sx={{ ml: { md: 'auto' }, display: { xs: 'none', md: 'block' } }}>
+                  <Button
+                    startIcon={<EditIcon />}
+                    onClick={handleEditClick}
+                    variant="outlined"
+                    sx={{
+                      borderRadius: '14px', borderColor: 'rgba(255,255,255,0.2)', color: '#fff',
+                      px: 3, py: 1.2, fontWeight: 700, textTransform: 'none',
+                      backdropFilter: 'blur(10px)',
+                      '&:hover': { borderColor: '#6366f1', bgcolor: 'rgba(99,102,241,0.15)' },
+                      transition: 'all 0.25s ease'
+                    }}
+                  >
+                    Edit Profile
+                  </Button>
+                </Box>
+              </>
+            )}
+
+            {!user && (
+              <Box sx={{ textAlign: 'center', width: '100%' }}>
+                <Typography variant="h3" sx={{ fontWeight: 900, color: '#fff', mb: 1 }}>My Account</Typography>
+                <Typography sx={{ color: 'rgba(255,255,255,0.55)' }}>Home / Profile Settings</Typography>
+              </Box>
+            )}
+          </Box>
+        </Container>
       </Box>
 
-      {/* Account Content */}
-      <Box sx={{ py: { xs: 6, md: 8 }, flexGrow: 1 }}>
+      {/* ── Body ── */}
+      <Box sx={{ py: { xs: 5, md: 7 }, flexGrow: 1 }}>
         <Container>
           {user ? (
-            <Grid container spacing={5}>
-              {/* Profile Sidebar Card */}
-              <Grid item xs={12} lg={3.5}>
-                <Card sx={{ 
-                  borderRadius: '24px', 
-                  boxShadow: '0 20px 40px rgba(0,0,0,0.03)',
-                  border: '1px solid rgba(0,0,0,0.05)',
-                  position: 'sticky',
-                  top: '100px',
-                  background: 'linear-gradient(180deg, #fff 0%, #fafafa 100%)',
-                  overflow: 'visible'
-                }}>
-                  <CardContent sx={{ p: 4, pt: 6 }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 5, mt: -8 }}>
-                      <Box sx={{
-                        position: 'relative',
-                        mb: 2,
-                        '&::after': {
-                          content: '""',
-                          position: 'absolute',
-                          top: -6, left: -6, right: -6, bottom: -6,
-                          borderRadius: '50%',
-                          background: 'linear-gradient(45deg, #111, #666)',
-                          zIndex: 0,
-                          opacity: 0.1
-                        }
-                      }}>
-                        <Avatar
-                          src={user.profilePhoto || ''}
-                          sx={{ 
-                            width: 140, 
-                            height: 140, 
-                            boxShadow: '0 12px 28px rgba(0,0,0,0.12)',
-                            border: '5px solid #fff',
-                            position: 'relative',
-                            zIndex: 1,
-                            bgcolor: '#f5f5f5',
-                            color: '#aaa'
+            <Box sx={{ display: 'flex', gap: 4, alignItems: 'flex-start', flexDirection: { xs: 'column', md: 'row' } }}>
+
+              {/* ── Left Sidebar ── */}
+              <Box sx={{ width: { xs: '100%', md: '280px' }, flexShrink: 0 }}>
+
+                  {/* Nav Card */}
+                  <Card sx={{
+                    borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)',
+                    boxShadow: '0 4px 24px rgba(0,0,0,0.06)', overflow: 'hidden',
+                    position: 'sticky', top: '90px'
+                  }}>
+                    <CardContent sx={{ p: 2.5 }}>
+                      <Typography variant="overline" sx={{ color: '#aaa', fontWeight: 800, fontSize: '0.65rem', letterSpacing: 2, px: 1, mb: 1, display: 'block' }}>
+                        Navigation
+                      </Typography>
+                      <Stack spacing={0.5}>
+                        {navItems.map((item) => {
+                          const isActive = activeTab === item.key && !item.onClick;
+                          return (
+                            <Button
+                              key={item.key}
+                              fullWidth
+                              disableElevation
+                              startIcon={item.icon}
+                              onClick={() => { if (item.onClick) item.onClick(); else setActiveTab(item.key); }}
+                              endIcon={item.onClick ? <ArrowForwardIosIcon sx={{ fontSize: '10px !important' }} /> : null}
+                              sx={{
+                                justifyContent: 'flex-start',
+                                py: 1.4, px: 2,
+                                borderRadius: '12px',
+                                textTransform: 'none',
+                                fontWeight: 700,
+                                fontSize: '0.92rem',
+                                bgcolor: isActive ? '#111' : 'transparent',
+                                color: isActive ? '#fff' : '#444',
+                                '&:hover': { bgcolor: isActive ? '#111' : '#f4f4f6', color: isActive ? '#fff' : '#000' },
+                                transition: 'all 0.2s ease',
+                              }}
+                            >
+                              {item.label}
+                            </Button>
+                          );
+                        })}
+
+                        <Divider sx={{ my: 1 }} />
+
+                        {/* Edit Profile */}
+                        <Button
+                          fullWidth disableElevation
+                          startIcon={<EditIcon fontSize="small" />}
+                          onClick={handleEditClick}
+                          sx={{
+                            justifyContent: 'flex-start', py: 1.4, px: 2, borderRadius: '12px',
+                            textTransform: 'none', fontWeight: 700, fontSize: '0.92rem',
+                            color: '#444', '&:hover': { bgcolor: '#f4f4f6', color: '#000' }, transition: 'all 0.2s ease'
                           }}
                         >
-                          {!user.profilePhoto && <PersonIcon sx={{ fontSize: 75 }} />}
-                        </Avatar>
-                      </Box>
-                      <Typography variant="h4" sx={{ fontWeight: 800, mb: 1, fontSize: '1.75rem', color: '#111' }}>
-                        {user.name}
-                      </Typography>
-                      <Box sx={{ 
-                        px: 2.5, 
-                        py: 0.75, 
-                        background: user.role === 'admin' ? 'linear-gradient(135deg, #111, #444)' : '#f0f0f0', 
-                        color: user.role === 'admin' ? '#fff' : '#666',
-                        borderRadius: '20px',
-                        fontSize: '0.75rem',
-                        fontWeight: 800,
-                        textTransform: 'uppercase',
-                        letterSpacing: 1.5,
-                        boxShadow: user.role === 'admin' ? '0 4px 12px rgba(0,0,0,0.15)' : 'none'
-                      }}>
-                        {user.role}
-                      </Box>
-                    </Box>
+                          Edit Profile
+                        </Button>
 
-                    <Divider sx={{ mb: 4 }} />
+                        {/* Admin Buttons */}
+                        {user.role === 'admin' && (
+                          <>
+                            <Divider sx={{ my: 1 }} />
+                            <Typography variant="overline" sx={{ color: '#aaa', fontWeight: 800, fontSize: '0.65rem', letterSpacing: 2, px: 1, display: 'block' }}>
+                              Admin
+                            </Typography>
+                            <Button
+                              fullWidth disableElevation startIcon={<AddCircleIcon fontSize="small" />}
+                              onClick={() => navigate('/admin/add-product')}
+                              sx={{
+                                justifyContent: 'flex-start', py: 1.4, px: 2, borderRadius: '12px',
+                                textTransform: 'none', fontWeight: 700, fontSize: '0.92rem',
+                                color: '#6366f1', '&:hover': { bgcolor: 'rgba(99,102,241,0.08)' }, transition: 'all 0.2s ease'
+                              }}
+                            >
+                              Add Product
+                            </Button>
+                            <Button
+                              fullWidth disableElevation startIcon={<ListAltIcon fontSize="small" />}
+                              onClick={() => navigate('/admin/my-listings')}
+                              sx={{
+                                justifyContent: 'flex-start', py: 1.4, px: 2, borderRadius: '12px',
+                                textTransform: 'none', fontWeight: 700, fontSize: '0.92rem',
+                                color: '#6366f1', '&:hover': { bgcolor: 'rgba(99,102,241,0.08)' }, transition: 'all 0.2s ease'
+                              }}
+                            >
+                              My Listings
+                            </Button>
+                          </>
+                        )}
 
-                    <Stack spacing={1.5}>
-                      <Button 
-                        fullWidth 
-                        variant={activeTab === 'info' ? "contained" : "text"} 
-                        startIcon={<PersonIcon />}
-                        onClick={() => setActiveTab('info')}
-                        disableElevation
-                        sx={{ 
-                          borderRadius: '16px',
-                          py: 1.8,
-                          justifyContent: 'flex-start',
-                          px: 3,
-                          bgcolor: activeTab === 'info' ? '#111' : 'transparent',
-                          color: activeTab === 'info' ? '#fff' : '#666',
-                          '&:hover': { bgcolor: activeTab === 'info' ? '#111' : '#f5f5f5', color: activeTab === 'info' ? '#fff' : '#111' },
-                          textTransform: 'none',
-                          fontWeight: 700,
-                          fontSize: '1rem',
-                          transition: 'all 0.2s ease'
-                        }}
-                      >
-                        Account Info
-                      </Button>
+                        <Divider sx={{ my: 1 }} />
 
-                      <Button 
-                        fullWidth 
-                        variant="text" 
-                        startIcon={<FavoriteIcon />}
-                        onClick={() => navigate('/liked-products')}
-                        disableElevation
-                        sx={{ 
-                          borderRadius: '16px',
-                          py: 1.8,
-                          justifyContent: 'flex-start',
-                          px: 3,
-                          bgcolor: 'transparent',
-                          color: '#666',
-                          '&:hover': { bgcolor: '#f5f5f5', color: '#111' },
-                          textTransform: 'none',
-                          fontWeight: 700,
-                          fontSize: '1rem',
-                          transition: 'all 0.2s ease'
-                        }}
-                      >
-                        My Liked Products
-                      </Button>
+                        {/* Logout */}
+                        <Button
+                          fullWidth disableElevation startIcon={<LogoutIcon fontSize="small" />}
+                          onClick={handleLogout}
+                          sx={{
+                            justifyContent: 'flex-start', py: 1.4, px: 2, borderRadius: '12px',
+                            textTransform: 'none', fontWeight: 700, fontSize: '0.92rem',
+                            color: '#ef4444', '&:hover': { bgcolor: '#fff1f2' }, transition: 'all 0.2s ease'
+                          }}
+                        >
+                          Logout
+                        </Button>
+                      </Stack>
+                    </CardContent>
+                  </Card>
 
-                      <Button 
-                        fullWidth 
-                        variant="text" 
-                        startIcon={<EditIcon />}
-                        onClick={handleEditClick}
-                        sx={{ 
-                          borderRadius: '16px',
-                          py: 1.8,
-                          justifyContent: 'flex-start',
-                          px: 3,
-                          color: '#666',
-                          '&:hover': { bgcolor: '#f5f5f5', color: '#111' },
-                          textTransform: 'none',
-                          fontWeight: 700,
-                          fontSize: '1rem'
-                        }}
-                      >
-                        Edit Profile
-                      </Button>
+              </Box>
 
-                        <Divider sx={{ my: 2, borderColor: 'rgba(0,0,0,0.05)' }} />
+              {/* ── Main Content ── */}
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Stack spacing={4}>
 
-                      {user.role === 'admin' && (
-                        <>
-                          <Button 
-                            fullWidth 
-                            variant="text" 
-                            startIcon={<AddCircleIcon />}
-                            onClick={() => navigate('/admin/add-product')}
-                            sx={{ 
-                              borderRadius: '16px',
-                              py: 1.8,
-                              justifyContent: 'flex-start',
-                              px: 3,
-                              color: '#666',
-                              '&:hover': { bgcolor: '#e3f2fd', color: '#1976d2' },
-                              textTransform: 'none',
-                              fontWeight: 700,
-                              fontSize: '1rem'
-                            }}
-                          >
-                            Add Product
-                          </Button>
-                          <Button 
-                            fullWidth 
-                            variant="text" 
-                            startIcon={<ListAltIcon />}
-                            onClick={() => navigate('/admin/my-listings')}
-                            sx={{ 
-                              borderRadius: '16px',
-                              py: 1.8,
-                              justifyContent: 'flex-start',
-                              px: 3,
-                              color: '#666',
-                              '&:hover': { bgcolor: '#e3f2fd', color: '#1976d2' },
-                              textTransform: 'none',
-                              fontWeight: 700,
-                              fontSize: '1rem'
-                            }}
-                          >
-                            My Listings
-                          </Button>
-                        </>
-                      )}
+                  {/* Quick Stat Cards */}
+                  <Grid container spacing={2}>
+                    {stats.map((stat) => (
+                      <Grid item xs={6} sm={3} key={stat.label}>
+                        <Card
+                          onClick={stat.onClick}
+                          sx={{
+                            borderRadius: '18px', cursor: 'pointer', overflow: 'hidden',
+                            background: stat.bg,
+                            boxShadow: `0 8px 24px ${stat.color}33`,
+                            transition: 'all 0.3s ease',
+                            '&:hover': { transform: 'translateY(-4px)', boxShadow: `0 16px 32px ${stat.color}44` }
+                          }}
+                        >
+                          <CardContent sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            <Box sx={{
+                              width: 44, height: 44, borderRadius: '12px',
+                              bgcolor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff'
+                            }}>
+                              {stat.icon}
+                            </Box>
+                            <Typography sx={{ color: 'rgba(255,255,255,0.85)', fontWeight: 800, fontSize: '1rem' }}>
+                              {stat.label}
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
 
-                      <Button 
-                        fullWidth 
-                        variant="text" 
-                        startIcon={<LogoutIcon />}
-                        onClick={handleLogout}
-                        sx={{ 
-                          borderRadius: '16px',
-                          py: 1.8,
-                          justifyContent: 'flex-start',
-                          px: 3,
-                          color: '#d32f2f',
-                          '&:hover': { bgcolor: '#ffebee' },
-                          textTransform: 'none',
-                          fontWeight: 700,
-                          fontSize: '1rem',
-                          mt: 1
-                        }}
-                      >
-                        Logout
-                      </Button>
-                    </Stack>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              {/* Details and Liked Products Main Area */}
-              <Grid item xs={12} lg={8.5}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {/* Account Info Panel */}
                   {activeTab === 'info' && (
-                    <Box sx={{ animation: 'fadeIn 0.4s ease-in-out' }}>
-                      <Typography variant="h3" sx={{ fontWeight: 900, mb: 4, letterSpacing: -1, color: '#111' }}>
-                        Account Information
-                      </Typography>
-                      
-                      <Card sx={{ 
-                        borderRadius: '24px', 
-                        boxShadow: 'none',
-                        background: 'transparent'
-                      }}>
-                        <CardContent sx={{ p: 0 }}>
-                          <Grid container spacing={3}>
-                            <Grid item xs={12} sm={6}>
-                              {renderInfoItem(<BadgeIcon fontSize="medium" />, "Full Name", user.name)}
+                    <Card sx={{ borderRadius: '20px', border: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
+                      <CardContent sx={{ p: 4 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 4 }}>
+                          <Box>
+                            <Typography variant="h5" sx={{ fontWeight: 900, color: '#111', letterSpacing: -0.5 }}>
+                              Account Information
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: '#aaa', mt: 0.5 }}>
+                              Your personal details and preferences
+                            </Typography>
+                          </Box>
+                          <Button
+                            startIcon={<EditIcon />}
+                            onClick={handleEditClick}
+                            variant="outlined"
+                            size="small"
+                            sx={{
+                              borderRadius: '10px', borderColor: '#e0e0e0', color: '#444',
+                              textTransform: 'none', fontWeight: 700,
+                              '&:hover': { borderColor: '#111', bgcolor: '#f9f9f9', color: '#111' }
+                            }}
+                          >
+                            Edit
+                          </Button>
+                        </Box>
+
+                        <Grid container spacing={3}>
+                          {infoFields.map((field) => (
+                            <Grid item xs={12} sm={6} key={field.label}>
+                              <Box sx={{
+                                p: 3, borderRadius: '16px',
+                                border: '1.5px solid #f0f0f0', bgcolor: '#fafafa',
+                                display: 'flex', gap: 2, alignItems: 'flex-start',
+                                transition: 'all 0.25s ease',
+                                '&:hover': { borderColor: field.color + '55', bgcolor: '#fff', transform: 'translateY(-2px)', boxShadow: `0 6px 20px ${field.color}15` }
+                              }}>
+                                <Box sx={{
+                                  width: 44, height: 44, borderRadius: '12px', flexShrink: 0,
+                                  background: field.color + '15',
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  color: field.color
+                                }}>
+                                  {field.icon}
+                                </Box>
+                                <Box>
+                                  <Typography variant="caption" sx={{ color: '#999', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 1.5, fontSize: '0.65rem' }}>
+                                    {field.label}
+                                  </Typography>
+                                  <Typography variant="body1" sx={{ fontWeight: 700, color: field.value ? '#111' : '#ccc', mt: 0.3, fontSize: '0.98rem', wordBreak: 'break-word' }}>
+                                    {field.value || 'Not provided'}
+                                  </Typography>
+                                </Box>
+                              </Box>
                             </Grid>
-                            <Grid item xs={12} sm={6}>
-                              {renderInfoItem(<EmailIcon fontSize="medium" />, "Email Address", user.email)}
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                              {renderInfoItem(<PhoneIcon fontSize="medium" />, "Mobile Number", user.mobile)}
-                            </Grid>
-                            <Grid item xs={12} sm={6}>
-                              {renderInfoItem(<HomeIcon fontSize="medium" />, "Delivery Address", user.address)}
-                            </Grid>
-                          </Grid>
+                          ))}
+                        </Grid>
+
+                        {/* Completeness bar */}
+                        <Box sx={{ mt: 4, p: 3, borderRadius: '14px', bgcolor: '#f8f9fa', border: '1px solid #f0f0f0' }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 700, color: '#444' }}>Profile Completeness</Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 800, color: '#6366f1' }}>
+                              {Math.round(([user.name, user.email, user.mobile, user.address].filter(Boolean).length / 4) * 100)}%
+                            </Typography>
+                          </Box>
+                          <Box sx={{ height: 8, borderRadius: '99px', bgcolor: '#e9ecef', overflow: 'hidden' }}>
+                            <Box sx={{
+                              height: '100%', borderRadius: '99px',
+                              background: 'linear-gradient(90deg,#6366f1,#818cf8)',
+                              width: `${([user.name, user.email, user.mobile, user.address].filter(Boolean).length / 4) * 100}%`,
+                              transition: 'width 0.6s ease'
+                            }} />
+                          </Box>
+                          {([user.name, user.email, user.mobile, user.address].filter(Boolean).length < 4) && (
+                            <Typography variant="caption" sx={{ color: '#aaa', mt: 1, display: 'block' }}>
+                              Complete your profile to unlock all features.
+                            </Typography>
+                          )}
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Quick Links Banner */}
+                  <Grid container spacing={2}>
+                    {/* My Orders Banner */}
+                    <Grid item xs={12} sm={6}>
+                      <Card
+                        onClick={() => navigate('/my-orders')}
+                        sx={{
+                          borderRadius: '20px', cursor: 'pointer', overflow: 'hidden',
+                          background: 'linear-gradient(135deg,#1e1b4b,#312e81)',
+                          border: '1px solid rgba(99,102,241,0.3)',
+                          boxShadow: '0 4px 20px rgba(99,102,241,0.12)',
+                          transition: 'all 0.3s ease',
+                          '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 12px 32px rgba(99,102,241,0.25)' }
+                        }}
+                      >
+                        <CardContent sx={{ p: 3.5, display: 'flex', alignItems: 'center', gap: 2.5 }}>
+                          <Box sx={{
+                            width: 56, height: 56, borderRadius: '14px',
+                            bgcolor: 'rgba(99,102,241,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            color: '#a5b4fc', flexShrink: 0
+                          }}>
+                            <ShoppingBagIcon sx={{ fontSize: 28 }} />
+                          </Box>
+                          <Box sx={{ flex: 1 }}>
+                            <Typography sx={{ color: '#fff', fontWeight: 800, fontSize: '1.05rem' }}>My Orders</Typography>
+                            <Typography sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', mt: 0.3 }}>Track & manage your orders</Typography>
+                          </Box>
+                          <ArrowForwardIosIcon sx={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }} />
                         </CardContent>
                       </Card>
-                    </Box>
-                  )}
-                </Box>
-              </Grid>
-            </Grid>
+                    </Grid>
+
+                    {/* Wishlist Banner */}
+                    <Grid item xs={12} sm={6}>
+                      <Card
+                        onClick={() => navigate('/liked-products')}
+                        sx={{
+                          borderRadius: '20px', cursor: 'pointer', overflow: 'hidden',
+                          background: 'linear-gradient(135deg,#450a0a,#7f1d1d)',
+                          border: '1px solid rgba(239,68,68,0.3)',
+                          boxShadow: '0 4px 20px rgba(239,68,68,0.12)',
+                          transition: 'all 0.3s ease',
+                          '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 12px 32px rgba(239,68,68,0.25)' }
+                        }}
+                      >
+                        <CardContent sx={{ p: 3.5, display: 'flex', alignItems: 'center', gap: 2.5 }}>
+                          <Box sx={{
+                            width: 56, height: 56, borderRadius: '14px',
+                            bgcolor: 'rgba(239,68,68,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            color: '#fca5a5', flexShrink: 0
+                          }}>
+                            <FavoriteIcon sx={{ fontSize: 28 }} />
+                          </Box>
+                          <Box sx={{ flex: 1 }}>
+                            <Typography sx={{ color: '#fff', fontWeight: 800, fontSize: '1.05rem' }}>My Wishlist</Typography>
+                            <Typography sx={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', mt: 0.3 }}>
+                              {likedProducts.length} saved item{likedProducts.length !== 1 ? 's' : ''}
+                            </Typography>
+                          </Box>
+                          <ArrowForwardIosIcon sx={{ color: 'rgba(255,255,255,0.3)', fontSize: 14 }} />
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  </Grid>
+
+                </Stack>
+              </Box>
+
+            </Box>
           ) : (
-             // Logged Out View - Login Required Message
-             <Box sx={{ maxWidth: 600, mx: 'auto', textAlign: 'center', py: 8 }}>
-                 <Card sx={{ p: 6, boxShadow: '0 20px 60px rgba(0,0,0,0.1)', borderRadius: '32px', border: '1px solid #f0f0f0' }}>
-                     <Box sx={{ 
-                       width: 100, 
-                       height: 100, 
-                       bgcolor: '#f5f5f5', 
-                       borderRadius: '50%', 
-                       display: 'flex', 
-                       alignItems: 'center', 
-                       justifyContent: 'center',
-                       mx: 'auto',
-                       mb: 3
-                     }}>
-                      <PersonIcon sx={{ fontSize: 50, color: '#000' }} />
-                     </Box>
-                     <Typography variant="h4" sx={{ fontWeight: 800, mb: 2 }}>
-                         Sign in Required
-                     </Typography>
-                     <Typography variant="body1" color="text.secondary" sx={{ mb: 4, fontSize: '1.1rem', lineHeight: 1.6 }}>
-                         Access your orders, wishlist, and profile settings by signing in to your account.
-                     </Typography>
-                     
-                     <Stack spacing={2} sx={{ maxWidth: 300, mx: 'auto' }}>
-                         <Button 
-                             component={Link} 
-                             to="/login"
-                             variant="contained" 
-                             size="large"
-                             sx={{
-                                 backgroundColor: '#000',
-                                 color: '#fff',
-                                 py: 1.8,
-                                 textTransform: 'none',
-                                 borderRadius: '14px',
-                                 fontWeight: 700,
-                                 '&:hover': { backgroundColor: '#333' }
-                             }}
-                         >
-                             Login to Account
-                         </Button>
-                         <Button 
-                             component={Link} 
-                             to="/register"
-                             variant="outlined" 
-                             size="large"
-                             sx={{
-                                 color: '#000',
-                                 borderColor: '#000',
-                                 py: 1.8,
-                                 textTransform: 'none',
-                                 borderRadius: '14px',
-                                 fontWeight: 700,
-                                 '&:hover': { backgroundColor: '#f5f5f5', borderColor: '#000' }
-                             }}
-                         >
-                             Create New Account
-                         </Button>
-                     </Stack>
-                 </Card>
-             </Box>
+            /* ── Not logged in ── */
+            <Box sx={{ maxWidth: 520, mx: 'auto', textAlign: 'center', py: 10 }}>
+              <Card sx={{ p: 6, boxShadow: '0 20px 60px rgba(0,0,0,0.08)', borderRadius: '28px', border: '1px solid #f0f0f0' }}>
+                <Box sx={{
+                  width: 90, height: 90, bgcolor: '#f5f5f5', borderRadius: '50%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 3
+                }}>
+                  <PersonIcon sx={{ fontSize: 50, color: '#111' }} />
+                </Box>
+                <Typography variant="h4" sx={{ fontWeight: 900, mb: 1.5, color: '#111' }}>Sign in Required</Typography>
+                <Typography color="text.secondary" sx={{ mb: 4, lineHeight: 1.7 }}>
+                  Access your orders, wishlist, and profile settings by signing in to your account.
+                </Typography>
+                <Stack spacing={1.5} sx={{ maxWidth: 280, mx: 'auto' }}>
+                  <Button component={Link} to="/login" variant="contained" size="large" sx={{ bgcolor: '#111', borderRadius: '12px', py: 1.6, textTransform: 'none', fontWeight: 700, '&:hover': { bgcolor: '#333' } }}>
+                    Login to Account
+                  </Button>
+                  <Button component={Link} to="/register" variant="outlined" size="large" sx={{ borderColor: '#ddd', color: '#444', borderRadius: '12px', py: 1.6, textTransform: 'none', fontWeight: 700, '&:hover': { borderColor: '#111', bgcolor: '#fafafa' } }}>
+                    Create New Account
+                  </Button>
+                </Stack>
+              </Card>
+            </Box>
           )}
         </Container>
       </Box>
 
-      {/* Edit Profile Dialog */}
-      <Dialog 
-        open={editDialogOpen} 
+      {/* ── Edit Profile Dialog ── */}
+      <Dialog
+        open={editDialogOpen}
         onClose={handleEditClose}
-        fullWidth
-        maxWidth="sm"
-        PaperProps={{
-          sx: { borderRadius: '24px', p: 1 }
-        }}
+        fullWidth maxWidth="sm"
+        PaperProps={{ sx: { borderRadius: '24px', p: 0, overflow: 'hidden' } }}
       >
-        <DialogTitle sx={{ fontWeight: 800, fontSize: '1.5rem' }}>Edit Profile Information</DialogTitle>
-        <DialogContent>
-          <Stack spacing={2.5} sx={{ mt: 1 }}>
-            
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 2 }}>
-                <Box sx={{ position: 'relative' }}>
-                    <Avatar 
-                        src={editData.profilePhotoPreview} 
-                        sx={{ width: 100, height: 100, border: '2px solid #eee' }} 
-                    />
-                    <IconButton
-                        color="primary"
-                        aria-label="upload picture"
-                        component="label"
-                        sx={{
-                            position: 'absolute',
-                            bottom: 0,
-                            right: -10,
-                            backgroundColor: '#fff',
-                            border: '1px solid #ccc',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                            '&:hover': { backgroundColor: '#f5f5f5' }
-                        }}
-                    >
-                        <input hidden accept="image/*" type="file" onChange={handleFileChange} />
-                        <CameraAltIcon fontSize="small" sx={{ color: '#111' }} />
-                    </IconButton>
+        {/* Dialog Header */}
+        <Box sx={{ background: 'linear-gradient(135deg,#0f0f0f,#1a1a2e)', p: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box>
+            <Typography variant="h6" sx={{ color: '#fff', fontWeight: 800 }}>Edit Profile</Typography>
+            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.45)' }}>Update your personal information</Typography>
+          </Box>
+          <IconButton onClick={handleEditClose} sx={{ color: 'rgba(255,255,255,0.4)', '&:hover': { color: '#fff', bgcolor: 'rgba(255,255,255,0.1)' } }}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+
+        <DialogContent sx={{ p: 4 }}>
+          <Stack spacing={3}>
+            {/* Avatar Upload */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
+              <Box sx={{ position: 'relative' }}>
+                <Box sx={{
+                  width: 100, height: 100, borderRadius: '50%',
+                  background: 'linear-gradient(135deg,#6366f1,#ef4444)', p: '3px',
+                  boxShadow: '0 0 30px rgba(99,102,241,0.3)'
+                }}>
+                  <Avatar src={editData.profilePhotoPreview} sx={{ width: '100%', height: '100%', border: '3px solid #fff', bgcolor: '#f0f0f0' }} />
                 </Box>
+                <IconButton
+                  component="label"
+                  size="small"
+                  sx={{
+                    position: 'absolute', bottom: 2, right: 2,
+                    bgcolor: '#6366f1', color: '#fff', width: 30, height: 30,
+                    '&:hover': { bgcolor: '#4f46e5' }, boxShadow: '0 4px 14px rgba(99,102,241,0.4)'
+                  }}
+                >
+                  <input hidden accept="image/*" type="file" onChange={handleFileChange} />
+                  <CameraAltIcon sx={{ fontSize: 14 }} />
+                </IconButton>
+              </Box>
+              <Typography variant="caption" sx={{ color: '#aaa' }}>Click the camera icon to change your photo</Typography>
             </Box>
 
             <TextField
-              label="Full Name"
-              name="name"
-              value={editData.name}
-              onChange={handleInputChange}
-              fullWidth
-              variant="outlined"
+              label="Full Name" name="name" value={editData.name} onChange={handleInputChange}
+              fullWidth variant="outlined"
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
             />
             <TextField
-              label="Mobile Number"
-              name="mobile"
-              value={editData.mobile}
-              onChange={handleInputChange}
-              fullWidth
-              variant="outlined"
+              label="Mobile Number" name="mobile" value={editData.mobile} onChange={handleInputChange}
+              fullWidth variant="outlined"
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
             />
             <TextField
-              label="Address"
-              name="address"
-              value={editData.address}
-              onChange={handleInputChange}
-              fullWidth
-              multiline
-              rows={3}
-              variant="outlined"
+              label="Delivery Address" name="address" value={editData.address} onChange={handleInputChange}
+              fullWidth multiline rows={3} variant="outlined"
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
             />
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
-          <Button onClick={handleEditClose} sx={{ color: '#666', fontWeight: 700 }}>Cancel</Button>
-          <Button 
-            onClick={handleUpdateProfile} 
-            variant="contained" 
+
+        <DialogActions sx={{ p: 3, pt: 0, gap: 1.5 }}>
+          <Button onClick={handleEditClose} sx={{ color: '#888', fontWeight: 700, textTransform: 'none', borderRadius: '10px' }}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleUpdateProfile}
+            variant="contained"
             disabled={updating}
-            sx={{ 
-                bgcolor: '#000', 
-                borderRadius: '10px', 
-                px: 4,
-                '&:hover': { bgcolor: '#333' }
+            sx={{
+              bgcolor: '#111', borderRadius: '12px', px: 4, py: 1.2,
+              fontWeight: 700, textTransform: 'none',
+              '&:hover': { bgcolor: '#333' }, minWidth: 140
             }}
           >
-            {updating ? <CircularProgress size={24} color="inherit" /> : 'Save Changes'}
+            {updating ? <CircularProgress size={22} color="inherit" /> : 'Save Changes'}
           </Button>
         </DialogActions>
       </Dialog>
