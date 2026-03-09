@@ -16,11 +16,15 @@ app.use(express.json());
 app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 const productRoutes = require('./routes/productRoutes');
+const cartRoutes = require('./routes/cartRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 
 const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use('/api/products', productRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.get('/',(req,res) => {
     res.send("Nenrasha API Running");
