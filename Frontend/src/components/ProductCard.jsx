@@ -18,13 +18,8 @@ const getOldPrice = (oldPriceINR) => {
     return oldPriceINR ? `₹${oldPriceINR.toLocaleString('en-IN')}` : null;
 };
 
-// ─── FIXED DIMENSIONS ───────────────────────────────────────────────────────
-// These are the ONLY values that control card height.
-// Change them here and every grid/carousel will stay consistent.
-const IMAGE_HEIGHT = 280;   // px — image section height
-const CONTENT_HEIGHT = 148; // px — text + price section height
-// Total card height = IMAGE_HEIGHT + CONTENT_HEIGHT = 428 px
-// ────────────────────────────────────────────────────────────────────────────
+const IMAGE_HEIGHT = 280;   
+const CONTENT_HEIGHT = 148; 
 
 function ProductCard({ product }){
     const navigate = useNavigate();

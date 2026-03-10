@@ -17,9 +17,11 @@ import {
     LoopOutlined as ReturnIcon,
     ShareOutlined as ShareIcon,
     Star as StarIcon,
+    StarBorderOutlined as StarBorderIcon,
     Edit as EditIcon,
     Delete as DeleteIcon,
     CheckCircleOutline as CheckIcon,
+    Close as CloseIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -43,11 +45,28 @@ const ProductDetails = () => {
     const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
     const [isZoomed, setIsZoomed] = useState(false);
     const [snackbar, setSnackbar] = useState({ open: false, msg: '', severity: 'success' });
+    const [reviews, setReviews] = useState([]);
+    const [reviewsLoading, setReviewsLoading] = useState(true);
+    const [userReview, setUserReview] = useState(null);
+    const [editingReviewId, setEditingReviewId] = useState(null);
+    const [editForm, setEditForm] = useState({ rating: 0, comment: '' });
+    const [newReview, setNewReview] = useState({ rating: 0, comment: '' });
+    const [submittingReview, setSubmittingReview] = useState(false);
     const imageRef = useRef(null);
+
+    useEffect(() => {
+        if (user && reviews.length > 0) {
+            const existing = reviews.find(r => r.user._id === user._id || r.user._id === user.id);
+            setUserReview(existing || null);
+        } else {
+            setUserReview(null);
+        }
+    }, [user, reviews]);
 
     useEffect(() => {
         window.scrollTo(0, 0);
         fetchProduct();
+        fetchReviews();
     }, [id]);
 
     const fetchProduct = async () => {
@@ -66,6 +85,122 @@ const ProductDetails = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const fetchReviews = async () => {
+        try {
+            setReviewsLoading(true);
+            const res = await fetch(`http://localhost:5000/api/reviews/product/${id}`);
+            const data = await res.json();
+            if (data.success) {
+                setReviews(data.data);
+                if (user) {
+                    const existing = data.data.find(r => r.user._id === user._id || r.user._id === user.id);
+                    setUserReview(existing || null);
+                }
+            }
+        } catch (err) {
+            console.error('Fetch reviews error:', err);
+        } finally {
+            setReviewsLoading(false);
+        }
+    };
+
+    const handleSubmitReview = async () => {
+        if (!newReview.rating || !newReview.comment.trim()) {
+            setSnackbar({ open: true, msg: 'Please select a rating and write a comment', severity: 'error' });
+            return;
+        }
+        setSubmittingReview(true);
+        try {
+            const res = await fetch(`http://localhost:5000/api/reviews/product/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`
+                },
+                body: JSON.stringify(newReview)
+            });
+            const data = await res.json();
+            if (data.success) {
+                setReviews([data.data, ...reviews]);
+                setUserReview(data.data);
+                setNewReview({ rating: 0, comment: '' });
+                setSnackbar({ open: true, msg: 'Review submitted!', severity: 'success' });
+            } else {
+                setSnackbar({ open: true, msg: data.message || 'Failed to submit review', severity: 'error' });
+            }
+        } catch (err) {
+            console.error('Submit review error:', err);
+            setSnackbar({ open: true, msg: 'Error submitting review', severity: 'error' });
+        } finally {
+            setSubmittingReview(false);
+        }
+    };
+
+    const handleUpdateReview = async (reviewId) => {
+        if (!editForm.rating || !editForm.comment.trim()) {
+            setSnackbar({ open: true, msg: 'Please select a rating and write a comment', severity: 'error' });
+            return;
+        }
+        setSubmittingReview(true);
+        try {
+            const res = await fetch(`http://localhost:5000/api/reviews/${reviewId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`
+                },
+                body: JSON.stringify(editForm)
+            });
+            const data = await res.json();
+            if (data.success) {
+                setReviews(reviews.map(r => r._id === reviewId ? data.data : r));
+                setUserReview(data.data);
+                setEditingReviewId(null);
+                setEditForm({ rating: 0, comment: '' });
+                setSnackbar({ open: true, msg: 'Review updated!', severity: 'success' });
+            } else {
+                setSnackbar({ open: true, msg: data.message || 'Failed to update review', severity: 'error' });
+            }
+        } catch (err) {
+            console.error('Update review error:', err);
+            setSnackbar({ open: true, msg: 'Error updating review', severity: 'error' });
+        } finally {
+            setSubmittingReview(false);
+        }
+    };
+
+    const handleDeleteReview = async (reviewId) => {
+        const confirmed = await showConfirm('Are you sure you want to delete this review?', { title: 'Delete Review', severity: 'error' });
+        if (!confirmed) return;
+        try {
+            const res = await fetch(`http://localhost:5000/api/reviews/${reviewId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${user.token}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                setReviews(reviews.filter(r => r._id !== reviewId));
+                if (userReview?._id === reviewId) setUserReview(null);
+                setSnackbar({ open: true, msg: 'Review deleted', severity: 'success' });
+            } else {
+                setSnackbar({ open: true, msg: data.message || 'Failed to delete review', severity: 'error' });
+            }
+        } catch (err) {
+            console.error('Delete review error:', err);
+            setSnackbar({ open: true, msg: 'Error deleting review', severity: 'error' });
+        }
+    };
+
+    const startEditing = (review) => {
+        setEditingReviewId(review._id);
+        setEditForm({ rating: review.rating, comment: review.comment });
+    };
+
+    const cancelEditing = () => {
+        setEditingReviewId(null);
+        setEditForm({ rating: 0, comment: '' });
     };
 
     const handleAddToCart = async () => {
@@ -153,6 +288,22 @@ const ProductDetails = () => {
     const discountPct = product.discount || (product.oldPriceINR
         ? Math.round(((product.oldPriceINR - product.priceINR) / product.oldPriceINR) * 100)
         : 0);
+
+    const avgRating = reviews.length > 0
+        ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+        : 0;
+    const ratingCounts = [5, 4, 3, 2, 1].map(star => reviews.filter(r => r.rating === star).length);
+    const maxRatingCount = Math.max(...ratingCounts, 1);
+
+    const getInitials = (name) => {
+        if (!name) return '?';
+        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    };
+
+    const formatDate = (dateStr) => {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    };
 
     return (
         <Box sx={{ backgroundColor: '#fafafa', minHeight: '100vh', pb: { xs: 14, md: 10 } }}>
@@ -373,12 +524,22 @@ const ProductDetails = () => {
                                 {product.name}
                             </Typography>
 
-                            {/* Rating row (decorative) */}
+                            {/* Rating row (computed) */}
                             <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-                                {[1,2,3,4,5].map(i => (
-                                    <StarIcon key={i} sx={{ fontSize: 16, color: i <= 4 ? '#f59e0b' : '#ddd' }} />
-                                ))}
-                                <Typography sx={{ fontSize: '0.8rem', color: '#888', fontWeight: 600 }}>4.0 (128 reviews)</Typography>
+                                {reviews.length > 0 ? (
+                                    <>
+                                        {[1,2,3,4,5].map(i => (
+                                            <StarIcon key={i} sx={{ fontSize: 16, color: i <= Math.round(avgRating) ? '#f59e0b' : '#ddd' }} />
+                                        ))}
+                                        <Typography sx={{ fontSize: '0.8rem', color: '#888', fontWeight: 600 }}>
+                                            {avgRating} ({reviews.length} review{reviews.length !== 1 ? 's' : ''})
+                                        </Typography>
+                                    </>
+                                ) : (
+                                    <Typography sx={{ fontSize: '0.8rem', color: '#888', fontWeight: 600 }}>
+                                        No ratings yet
+                                    </Typography>
+                                )}
                             </Stack>
 
                             {/* Price row */}
@@ -593,6 +754,281 @@ const ProductDetails = () => {
                         </Box>
                     </Grid>
                 </Grid>
+            </Container>
+
+            {/* ── Reviews Section ───────────────────────────────────────────────── */}
+            <Container maxWidth="lg" sx={{ pb: 6 }}>
+                <Box sx={{ mt: 6 }}>
+                    <Typography variant="h5" sx={{ fontWeight: 800, mb: 4, color: '#111' }}>
+                        Customer Reviews
+                    </Typography>
+
+                    {/* Rating Summary */}
+                    {reviews.length > 0 && (
+                        <Box sx={{ 
+                            bgcolor: '#fff', 
+                            borderRadius: 3, 
+                            p: 3, 
+                            mb: 4, 
+                            border: '1px solid #ebebeb',
+                            display: 'flex',
+                            flexDirection: { xs: 'column', sm: 'row' },
+                            gap: 4,
+                            alignItems: { sm: 'center' }
+                        }}>
+                            <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
+                                <Typography sx={{ fontSize: '3rem', fontWeight: 900, color: '#111', lineHeight: 1 }}>
+                                    {avgRating}
+                                </Typography>
+                                <Stack direction="row" spacing={0.5} justifyContent={{ xs: 'center', sm: 'flex-start' }} sx={{ mb: 0.5 }}>
+                                    {[1,2,3,4,5].map(i => (
+                                        <StarIcon key={i} sx={{ fontSize: 20, color: i <= Math.round(avgRating) ? '#f59e0b' : '#ddd' }} />
+                                    ))}
+                                </Stack>
+                                <Typography sx={{ fontSize: '0.85rem', color: '#888' }}>
+                                    Based on {reviews.length} review{reviews.length !== 1 ? 's' : ''}
+                                </Typography>
+                            </Box>
+                            <Box sx={{ flex: 1 }}>
+                                {[5,4,3,2,1].map((star, idx) => (
+                                    <Box key={star} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                        <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, color: '#555', width: 20 }}>{star}</Typography>
+                                        <StarIcon sx={{ fontSize: 14, color: '#f59e0b' }} />
+                                        <Box sx={{ flex: 1, height: 8, bgcolor: '#eee', borderRadius: 4, overflow: 'hidden' }}>
+                                            <Box sx={{ 
+                                                height: '100%', 
+                                                width: `${(ratingCounts[idx] / maxRatingCount) * 100}%`,
+                                                bgcolor: '#f59e0b', 
+                                                borderRadius: 4,
+                                                transition: 'width 0.3s'
+                                            }} />
+                                        </Box>
+                                        <Typography sx={{ fontSize: '0.75rem', color: '#888', width: 24 }}>{ratingCounts[idx]}</Typography>
+                                    </Box>
+                                ))}
+                            </Box>
+                        </Box>
+                    )}
+
+                    {/* Write Review Form */}
+                    {user && !userReview && (
+                        <Box sx={{ 
+                            bgcolor: '#fff', 
+                            borderRadius: 3, 
+                            p: 3, 
+                            mb: 4, 
+                            border: '1px solid #ebebeb' 
+                        }}>
+                            <Typography sx={{ fontWeight: 700, mb: 2, color: '#111' }}>Write a Review</Typography>
+                            <Stack direction="row" spacing={0.5} sx={{ mb: 2 }}>
+                                {[1,2,3,4,5].map(star => (
+                                    <Box 
+                                        key={star} 
+                                        onClick={() => setNewReview({ ...newReview, rating: star })}
+                                        sx={{ cursor: 'pointer', p: 0.25 }}
+                                    >
+                                        {newReview.rating >= star ? (
+                                            <StarIcon sx={{ fontSize: 28, color: '#f59e0b' }} />
+                                        ) : (
+                                            <StarBorderIcon sx={{ fontSize: 28, color: '#ddd' }} />
+                                        )}
+                                    </Box>
+                                ))}
+                            </Stack>
+                            <Box sx={{ mb: 2 }}>
+                                <Box
+                                    component="textarea"
+                                    placeholder="Share your experience with this product..."
+                                    value={newReview.comment}
+                                    onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                                    sx={{
+                                        width: '100%',
+                                        minHeight: 100,
+                                        p: 1.5,
+                                        border: '1px solid #ddd',
+                                        borderRadius: 2,
+                                        fontSize: '0.9rem',
+                                        fontFamily: 'inherit',
+                                        resize: 'vertical',
+                                        '&:focus': { outline: 'none', borderColor: '#111' }
+                                    }}
+                                />
+                            </Box>
+                            <Button
+                                variant="contained"
+                                onClick={handleSubmitReview}
+                                disabled={submittingReview || !newReview.rating || !newReview.comment.trim()}
+                                sx={{ bgcolor: '#111', '&:hover': { bgcolor: '#333' }, fontWeight: 700 }}
+                            >
+                                {submittingReview ? 'Submitting...' : 'Submit Review'}
+                            </Button>
+                        </Box>
+                    )}
+
+                    {user && userReview && (
+                        <Box sx={{ 
+                            bgcolor: '#f0fdf4', 
+                            borderRadius: 3, 
+                            p: 3, 
+                            mb: 4, 
+                            border: '1px solid #bbf7d0' 
+                        }}>
+                            <Typography sx={{ fontWeight: 600, color: '#166534', mb: 1 }}>
+                                You have already reviewed this product
+                            </Typography>
+                        </Box>
+                    )}
+
+                    {!user && (
+                        <Box sx={{ 
+                            bgcolor: '#fff7ed', 
+                            borderRadius: 3, 
+                            p: 3, 
+                            mb: 4, 
+                            border: '1px solid #fed7aa',
+                            textAlign: 'center'
+                        }}>
+                            <Typography sx={{ color: '#9a3412' }}>
+                                <Box 
+                                    component="span" 
+                                    onClick={() => navigate('/login')}
+                                    sx={{ cursor: 'pointer', textDecoration: 'underline', fontWeight: 600 }}
+                                >
+                                    Log in
+                                </Box>{' '}
+                                to write a review
+                            </Typography>
+                        </Box>
+                    )}
+
+                    {/* Reviews List */}
+                    {reviewsLoading ? (
+                        <Box sx={{ textAlign: 'center', py: 4 }}>
+                            <Typography color="text.secondary">Loading reviews...</Typography>
+                        </Box>
+                    ) : reviews.length === 0 ? (
+                        <Box sx={{ textAlign: 'center', py: 4, bgcolor: '#fff', borderRadius: 3, border: '1px solid #ebebeb' }}>
+                            <Typography color="text.secondary">No reviews yet. Be the first to review this product!</Typography>
+                        </Box>
+                    ) : (
+                        <Stack spacing={2}>
+                            {reviews.map((review) => (
+                                <Box key={review._id} sx={{ 
+                                    bgcolor: '#fff', 
+                                    borderRadius: 3, 
+                                    p: 3, 
+                                    border: '1px solid #ebebeb' 
+                                }}>
+                                    {editingReviewId === review._id ? (
+                                        <Box>
+                                            <Stack direction="row" spacing={0.5} sx={{ mb: 2 }}>
+                                                {[1,2,3,4,5].map(star => (
+                                                    <Box 
+                                                        key={star} 
+                                                        onClick={() => setEditForm({ ...editForm, rating: star })}
+                                                        sx={{ cursor: 'pointer', p: 0.25 }}
+                                                    >
+                                                        {editForm.rating >= star ? (
+                                                            <StarIcon sx={{ fontSize: 24, color: '#f59e0b' }} />
+                                                        ) : (
+                                                            <StarBorderIcon sx={{ fontSize: 24, color: '#ddd' }} />
+                                                        )}
+                                                    </Box>
+                                                ))}
+                                            </Stack>
+                                            <Box sx={{ mb: 2 }}>
+                                                <Box
+                                                    component="textarea"
+                                                    value={editForm.comment}
+                                                    onChange={(e) => setEditForm({ ...editForm, comment: e.target.value })}
+                                                    sx={{
+                                                        width: '100%',
+                                                        minHeight: 80,
+                                                        p: 1.5,
+                                                        border: '1px solid #ddd',
+                                                        borderRadius: 2,
+                                                        fontSize: '0.9rem',
+                                                        fontFamily: 'inherit',
+                                                        resize: 'vertical',
+                                                        '&:focus': { outline: 'none', borderColor: '#111' }
+                                                    }}
+                                                />
+                                            </Box>
+                                            <Stack direction="row" spacing={1}>
+                                                <Button
+                                                    variant="contained"
+                                                    size="small"
+                                                    onClick={() => handleUpdateReview(review._id)}
+                                                    disabled={submittingReview}
+                                                    sx={{ bgcolor: '#111', '&:hover': { bgcolor: '#333' } }}
+                                                >
+                                                    Save
+                                                </Button>
+                                                <Button
+                                                    variant="outlined"
+                                                    size="small"
+                                                    onClick={cancelEditing}
+                                                    sx={{ borderColor: '#ddd', color: '#555' }}
+                                                >
+                                                    Cancel
+                                                </Button>
+                                            </Stack>
+                                        </Box>
+                                    ) : (
+                                        <Box>
+                                            <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1.5 }}>
+                                                <Box sx={{
+                                                    width: 40,
+                                                    height: 40,
+                                                    borderRadius: '50%',
+                                                    bgcolor: '#111',
+                                                    color: '#fff',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    fontWeight: 700,
+                                                    fontSize: '0.85rem'
+                                                }}>
+                                                    {getInitials(review.user?.name)}
+                                                </Box>
+                                                <Box sx={{ flex: 1 }}>
+                                                    <Typography sx={{ fontWeight: 700, color: '#111', fontSize: '0.95rem' }}>
+                                                        {review.user?.name || 'Anonymous'}
+                                                    </Typography>
+                                                    <Stack direction="row" spacing={0.5}>
+                                                        {[1,2,3,4,5].map(i => (
+                                                            <StarIcon key={i} sx={{ fontSize: 14, color: i <= review.rating ? '#f59e0b' : '#ddd' }} />
+                                                        ))}
+                                                        <Typography sx={{ fontSize: '0.75rem', color: '#888', ml: 1 }}>
+                                                            {formatDate(review.createdAt)}
+                                                        </Typography>
+                                                    </Stack>
+                                                </Box>
+                                                {user && (review.user._id === user._id || review.user._id === user.id) && (
+                                                    <Stack direction="row" spacing={0.5}>
+                                                        <Tooltip title="Edit">
+                                                            <IconButton size="small" onClick={() => startEditing(review)} sx={{ color: '#888', '&:hover': { color: '#111' } }}>
+                                                                <EditIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip title="Delete">
+                                                            <IconButton size="small" onClick={() => handleDeleteReview(review._id)} sx={{ color: '#888', '&:hover': { color: '#d32f2f' } }}>
+                                                                <DeleteIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </Stack>
+                                                )}
+                                            </Stack>
+                                            <Typography sx={{ color: '#444', lineHeight: 1.6, fontSize: '0.9rem' }}>
+                                                {review.comment}
+                                            </Typography>
+                                        </Box>
+                                    )}
+                                </Box>
+                            ))}
+                        </Stack>
+                    )}
+                </Box>
             </Container>
 
             {/* ── Sticky mobile bottom bar ──────────────────────────────────── */}

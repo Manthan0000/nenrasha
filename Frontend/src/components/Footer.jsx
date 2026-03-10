@@ -1,4 +1,4 @@
-import {Box ,Typography,Grid, TextField,IconButton, Container} from '@mui/material';
+import {Box ,Typography,Grid, IconButton, Container} from '@mui/material';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
@@ -184,49 +184,7 @@ function Footer(){
                             ))}
                         </Box>
                     </Grid>
-                    
-                    {/* Newsletter */}
-                    <Grid item xs={12} md={5}>
-                        <Typography sx={{ fontWeight: 'bold', mb: 2, fontSize: '16px' }}>
-                            Newsletter.
-                        </Typography>
-                        <Typography sx={{ fontSize: '14px', color: 'text.secondary', mb: 2 }}>
-                            Sign up for our newsletter and get 10% off your first purchase
-                        </Typography>
-                        <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                            <TextField
-                                placeholder="Enter your e-mail"
-                                variant="outlined"
-                                fullWidth
-                                sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                        borderRadius: 0,
-                                        backgroundColor: '#fff',
-                                    },
-                                }}
-                            />
-                            <IconButton
-                                sx={{
-                                    backgroundColor: '#000',
-                                    color: '#fff',
-                                    borderRadius: 0,
-                                    '&:hover': { backgroundColor: '#333' },
-                                }}
-                            >
-                                <ArrowForwardIcon />
-                            </IconButton>
-                        </Box>
-                        <Typography sx={{ fontSize: '12px', color: 'text.secondary' }}>
-                            By clicking subscribe, you agree to the{' '}
-                            <Link component={RouterLink} to="/terms-conditions" sx={{ textDecoration: 'underline', color: 'inherit', fontWeight: 'bold' }}>
-                                Terms of Service
-                            </Link>{' '}
-                            and{' '}
-                            <Link component={RouterLink} to="/privacy-policy" sx={{ textDecoration: 'underline', color: 'inherit', fontWeight: 'bold' }}>
-                                Privacy Policy
-                            </Link>
-                        </Typography>
-                    </Grid>
+
                 </Grid>
             </Container>
         </Box>
