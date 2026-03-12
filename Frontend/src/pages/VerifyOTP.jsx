@@ -10,7 +10,6 @@ import VerifiedOutlinedIcon from '@mui/icons-material/VerifiedOutlined';
 
 const API_URL = 'http://localhost:5000/api/auth';
 const OTP_LENGTH = 6;
-const RESEND_COOLDOWN = 60; // seconds
 
 function VerifyOTP() {
     const navigate = useNavigate();
@@ -18,22 +17,9 @@ function VerifyOTP() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
-    const [resending, setResending] = useState(false);
-    const [countdown, setCountdown] = useState(RESEND_COOLDOWN);
-    const [canResend, setCanResend] = useState(false);
     const inputsRef = useRef([]);
 
     const email = sessionStorage.getItem('resetEmail') || '';
-
-    // Countdown timer for resend button
-    useEffect(() => {
-        if (countdown <= 0) {
-            setCanResend(true);
-            return;
-        }
-        const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
-        return () => clearTimeout(timer);
-    }, [countdown]);
 
     // Redirect if no email in session
     useEffect(() => {
@@ -119,37 +105,6 @@ function VerifyOTP() {
             setError('Network error. Please check if the server is running.');
         } finally {
             setLoading(false);
-        }
-    };
-
-    const handleResend = async () => {
-        if (!canResend || resending) return;
-        setResending(true);
-        setError('');
-        setSuccess('');
-
-        try {
-            const response = await fetch(`${API_URL}/forgot-password`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                setSuccess('A new OTP has been sent to your email.');
-                setOtp(Array(OTP_LENGTH).fill(''));
-                setCountdown(RESEND_COOLDOWN);
-                setCanResend(false);
-                inputsRef.current[0]?.focus();
-            } else {
-                setError(data.message || 'Failed to resend OTP.');
-            }
-        } catch (err) {
-            setError('Network error. Please check if the server is running.');
-        } finally {
-            setResending(false);
         }
     };
 
@@ -321,31 +276,6 @@ function VerifyOTP() {
                             )}
                         </Button>
                     </form>
-
-                    {/* Resend */}
-                    <Box sx={{ textAlign: 'center', mt: 2.5 }}>
-                        {canResend ? (
-                            <Typography sx={{ fontSize: '14px' }}>
-                                Didn't receive it?{' '}
-                                <span
-                                    onClick={handleResend}
-                                    style={{
-                                        color: resending ? '#999' : '#000',
-                                        fontWeight: 'bold',
-                                        cursor: resending ? 'default' : 'pointer',
-                                        textDecoration: 'underline',
-                                    }}
-                                >
-                                    {resending ? 'Resending…' : 'Resend OTP'}
-                                </span>
-                            </Typography>
-                        ) : (
-                            <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
-                                Resend OTP in{' '}
-                                <strong style={{ color: '#000' }}>{countdown}s</strong>
-                            </Typography>
-                        )}
-                    </Box>
 
                     <Box sx={{ textAlign: 'center', mt: 1.5 }}>
                         <Typography sx={{ fontSize: '14px', color: 'text.secondary' }}>
