@@ -29,7 +29,6 @@ function Login() {
         e.preventDefault();
         setError('');
         setLoading(true);
-
         try {
             const response = await fetch(`${API_URL}/login`, {
                 method: 'POST',
@@ -38,12 +37,9 @@ function Login() {
                 },
                 body: JSON.stringify(formData),
             });
-
             const data = await response.json();
-
             if (data.success) {
                 login(data.data);
-
                 navigate('/');
             } else {
                 setError(data.message || 'Login failed');
