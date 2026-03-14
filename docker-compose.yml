@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./Backend
+    container_name: nenrasha_backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./Backend/.env
+    restart: always
+
+  frontend:
+    build:
+      context: ./Frontend
+    container_name: nenrasha_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: always
