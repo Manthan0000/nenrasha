@@ -12,7 +12,7 @@ Step-by-step, ordered learning guide with explanations and practical application
 
 **Current state**: Your frontend uses Vite. Check frontend/vite.config.js
 
-**Key concepts to learn**:
+**Key  concepts to learn**:
 - `npm run build` → Creates `/dist` folder with minified, production-ready files
 - Tree-shaking → Removes unused code automatically
 - Code splitting → Breaks bundle into smaller chunks for faster loading
