@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Container, Typography, Box, TextField, Button, Grid, Paper, Divider, Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress, FormControlLabel, Checkbox } from '@mui/material';
+import { Container, Typography, Box, TextField, Button, Grid, Paper, Divider, Dialog, DialogTitle, DialogContent, CircularProgress, FormControlLabel, Checkbox } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 import { useDialog } from '../context/DialogContext';
 import SaveIcon from '@mui/icons-material/Save';
+import PayPalCheckout from '../components/PayPalCheckout';
 
 const Checkout = () => {
   const { user, login } = useAuth();
@@ -72,47 +73,54 @@ const Checkout = () => {
     }
   };
 
-  const handleConfirmPayment = async () => {
+  // Called by PayPalCheckout after PayPal confirms COMPLETED status
+  const handlePayPalSuccess = async ({ paypalOrderId, status }) => {
+    if (status !== 'COMPLETED') {
+      await showAlert('Payment was not completed. Please try again.', { severity: 'error' });
+      return;
+    }
     setLoading(true);
     try {
-        const storedUser = JSON.parse(localStorage.getItem('user'));
-        const token = storedUser?.token || user?.token;
+      const storedUser = JSON.parse(localStorage.getItem('user'));
+      const token = storedUser?.token || user?.token;
 
-        const response = await fetch(`http://localhost:5000/api/orders`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                shippingAddress: addressData,
-                totalAmount: getCartTotal(),
-                paymentStatus: 'Paid'
-            })
-        });
+      // Save the order in MongoDB only after PayPal confirms payment
+      const response = await fetch('http://localhost:5000/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          shippingAddress: addressData,
+          totalAmount: getCartTotal(),
+          paymentStatus: 'Paid',
+          paypalOrderId,              // store PayPal order ID for records
+        }),
+      });
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (data.success) {
-            setPaymentDialogOpen(false);
-
-            // ── Sync profile if user opted in and any field changed ──
-            if (saveAddress) {
-              await syncProfileIfChanged(token);
-            }
-
-            await fetchCart();
-            await showAlert('Payment successful! Your order has been placed.', { title: 'Order Placed!', severity: 'success' });
-            navigate('/my-orders');
-        } else {
-            await showAlert(data.message || 'Failed to place order. Please try again.', { severity: 'error' });
-        }
-    } catch (error) {
-        console.error('Error placing order:', error);
-        await showAlert('A server error occurred while placing your order. Please try again.', { severity: 'error' });
+      if (data.success) {
+        setPaymentDialogOpen(false);
+        if (saveAddress) await syncProfileIfChanged(token);
+        await fetchCart();
+        await showAlert('Payment successful! Your order has been placed.', { title: 'Order Placed! 🎉', severity: 'success' });
+        navigate('/my-orders');
+      } else {
+        await showAlert(data.message || 'Failed to save order. Please contact support.', { severity: 'error' });
+      }
+    } catch (err) {
+      console.error('Order save error:', err);
+      await showAlert('A server error occurred while saving your order.', { severity: 'error' });
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
+  };
+
+  const handlePayPalError = async (msg) => {
+    console.error('PayPal error:', msg);
+    await showAlert('PayPal payment failed: ' + msg, { severity: 'error' });
   };
 
   if (!cart || !cart.items || cart.items.length === 0) {
@@ -291,45 +299,49 @@ const Checkout = () => {
         </Grid>
       </Grid>
 
-      {/* Mock Payment Dialog */}
+      {/* PayPal Payment Dialog */}
       <Dialog open={paymentDialogOpen} onClose={() => !loading && setPaymentDialogOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ fontWeight: 'bold', textAlign: 'center', pb: 1 }}>
-          Mock Payment Gateway
+          Complete Payment with PayPal
         </DialogTitle>
-        <DialogContent sx={{ textAlign: 'center', py: 4 }}>
-            <Typography variant="h6" gutterBottom>
-                Total Payable Amount: <span style={{ color: '#d32f2f' }}>₹{getCartTotal()}</span>
+        <DialogContent sx={{ textAlign: 'center', py: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Total: <span style={{ color: '#d32f2f' }}>₹{getCartTotal()}</span>
+            <Typography variant="caption" display="block" color="text.secondary">
+              (~${(getCartTotal() / 84).toFixed(2)} USD — PayPal sandbox)
             </Typography>
-            <Typography color="text.secondary" sx={{ mt: 2 }}>
-                This is a simulated payment screen. Would you like to complete the payment?
-            </Typography>
-            {saveAddress && (
-              <Box sx={{ mt: 2, p: 1.5, bgcolor: '#f0fdf4', borderRadius: 2, border: '1px solid #bbf7d0' }}>
-                <Typography variant="caption" sx={{ color: '#15803d', fontWeight: 600 }}>
-                  ✓ Your profile details will be updated after payment
-                </Typography>
-              </Box>
-            )}
+          </Typography>
+
+          {saveAddress && (
+            <Box sx={{ mb: 2, p: 1.5, bgcolor: '#f0fdf4', borderRadius: 2, border: '1px solid #bbf7d0' }}>
+              <Typography variant="caption" sx={{ color: '#15803d', fontWeight: 600 }}>
+                ✓ Your profile details will be updated after payment
+              </Typography>
+            </Box>
+          )}
+
+          {loading ? (
+            <Box sx={{ py: 4 }}><CircularProgress /></Box>
+          ) : (
+            <PayPalCheckout
+              amount={getCartTotal()}
+              token={JSON.parse(localStorage.getItem('user'))?.token || user?.token}
+              onSuccess={handlePayPalSuccess}
+              onError={handlePayPalError}
+            />
+          )}
+
+          <Button
+            variant="text"
+            color="inherit"
+            size="small"
+            onClick={() => setPaymentDialogOpen(false)}
+            disabled={loading}
+            sx={{ mt: 1, color: 'text.secondary' }}
+          >
+            Cancel
+          </Button>
         </DialogContent>
-        <DialogActions sx={{ justifyContent: 'center', pb: 4, gap: 2 }}>
-            <Button 
-                variant="outlined" 
-                onClick={() => setPaymentDialogOpen(false)} 
-                disabled={loading}
-                sx={{ px: 4 }}
-            >
-                Cancel
-            </Button>
-            <Button 
-                variant="contained" 
-                color="success" 
-                onClick={handleConfirmPayment} 
-                disabled={loading}
-                sx={{ px: 4 }}
-            >
-                {loading ? <CircularProgress size={24} color="inherit" /> : 'Yes, Complete Payment'}
-            </Button>
-        </DialogActions>
       </Dialog>
     </Container>
   );
