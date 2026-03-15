@@ -323,12 +323,39 @@ const Checkout = () => {
           {loading ? (
             <Box sx={{ py: 4 }}><CircularProgress /></Box>
           ) : (
-            <PayPalCheckout
-              amount={getCartTotal()}
-              token={JSON.parse(localStorage.getItem('user'))?.token || user?.token}
-              onSuccess={handlePayPalSuccess}
-              onError={handlePayPalError}
-            />
+            <>
+              {/* Mock PayPal credentials for sandbox testing */}
+              <Box sx={{
+                mb: 2.5,
+                p: 2,
+                bgcolor: '#eff6ff',
+                borderRadius: 2,
+                border: '1px solid #bfdbfe',
+                textAlign: 'left',
+              }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#1e40af', mb: 1, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  🔑 Mock PayPal Login Credentials
+                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, pl: 0.5 }}>
+                  <Typography variant="body2" sx={{ color: '#1e3a5f', fontFamily: 'monospace' }}>
+                    <strong>Email:</strong> nenrashamockpay@gmail.com
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#1e3a5f', fontFamily: 'monospace' }}>
+                    <strong>Password:</strong> RojJalsa123
+                  </Typography>
+                </Box>
+                <Typography variant="caption" sx={{ color: '#6b7280', mt: 1, display: 'block' }}>
+                  Use these credentials when the PayPal popup asks you to log in.
+                </Typography>
+              </Box>
+
+              <PayPalCheckout
+                amount={getCartTotal()}
+                token={JSON.parse(localStorage.getItem('user'))?.token || user?.token}
+                onSuccess={handlePayPalSuccess}
+                onError={handlePayPalError}
+              />
+            </>
           )}
 
           <Button
