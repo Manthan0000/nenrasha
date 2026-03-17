@@ -43,6 +43,7 @@ import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import CloseIcon from '@mui/icons-material/Close';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 
 function MyAccount() {
   const { user, logout, login } = useAuth();
@@ -365,6 +366,17 @@ function MyAccount() {
                               }}
                             >
                               My Listings
+                            </Button>
+                            <Button
+                              fullWidth disableElevation startIcon={<AssignmentIcon fontSize="small" />}
+                              onClick={() => navigate('/admin/seller-orders')}
+                              sx={{
+                                justifyContent: 'flex-start', py: 1.4, px: 2, borderRadius: '12px',
+                                textTransform: 'none', fontWeight: 700, fontSize: '0.92rem',
+                                color: '#6366f1', '&:hover': { bgcolor: 'rgba(99,102,241,0.08)' }, transition: 'all 0.2s ease'
+                              }}
+                            >
+                              Pending Panel
                             </Button>
                           </>
                         )}

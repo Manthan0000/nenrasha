@@ -9,8 +9,14 @@ router.route('/')
     .post(orderController.createOrder)
     .get(orderController.getUserOrders);
 
+router.route('/seller-orders')
+    .get(orderController.getSellerOrders);
+
 router.route('/:id')
     .get(orderController.getOrderById)
     .put(orderController.updateOrderStatus);
+
+router.route('/:id/item/:itemId/status')
+    .put(orderController.updateOrderItemStatus);
 
 module.exports = router;

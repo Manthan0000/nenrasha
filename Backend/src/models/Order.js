@@ -11,7 +11,15 @@ const orderItemSchema = new mongoose.Schema({
     priceINR: { type: Number, required: true },
     image: { type: String },
     color: { type: String },
-    size: { type: String }
+    size: { type: String },
+    status: {
+        type: String,
+        default: 'Processing',
+        enum: ['Processing', 'Shipped', 'Out for Delivery', 'Delivered', 'Cancelled']
+    },
+    deliveredAt: {
+        type: Date
+    }
 });
 
 const orderSchema = new mongoose.Schema({

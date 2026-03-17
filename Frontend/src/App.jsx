@@ -12,6 +12,7 @@ import AddProduct from './pages/AddProduct.jsx';
 import MyListings from './pages/MyListings.jsx';
 import Products from './pages/Products.jsx';
 import LikedProducts from './pages/LikedProducts.jsx';
+import AdminPendingPanel from './pages/AdminPendingPanel.jsx';
 import TermsAndConditions from './pages/TermsAndConditions.jsx';
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
 import ReturnRefund from './pages/ReturnRefund.jsx';
@@ -52,6 +53,7 @@ function App() {
             <Route path='/admin/add-product' element={<AddProduct />} />
             <Route path='/admin/edit-product/:id' element={<AddProduct />} />
             <Route path='/admin/my-listings' element={<MyListings />} />
+            <Route path='/admin/seller-orders' element={<AdminPendingPanel />} />
             <Route path='/terms-conditions' element={<TermsAndConditions />} />
             <Route path='/privacy-policy' element={<PrivacyPolicy />} />
             <Route path='/return-refund' element={<ReturnRefund />} />
