@@ -127,16 +127,9 @@ const MyOrders = () => {
                             {/* Body */}
                             <Box sx={{ p: 3, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 3, justifyContent: 'space-between' }}>
                                 <Box sx={{ flex: 1 }}>
-                                    <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        Order Status: 
-                                        <Chip 
-                                            label={order.orderStatus} 
-                                            color={getStatusColor(order.orderStatus)} 
-                                            size="small" 
-                                            sx={{ fontWeight: 'bold', borderRadius: 1 }}
-                                        />
-                                    </Typography>
-
+                                    <Box sx={{ mb: 1 }}>
+                                        {/* Item list starts below */}
+                                    </Box>
                                     {order.items.slice(0, 2).map((item, index) => (
                                         <Box key={index} sx={{ display: 'flex', gap: 2, mb: 2 }}>
                                             {item.image && (
@@ -159,6 +152,19 @@ const MyOrders = () => {
                                                 <Typography variant="body2" color="text.secondary">
                                                     Quantity: {item.quantity} {item.color ? `| Color: ${item.color}` : ''} {item.size ? `| Size: ${item.size}` : ''}
                                                 </Typography>
+                                                <Box sx={{ mt: 0.5 }}>
+                                                    <Chip 
+                                                        label={item.status || 'Processing'} 
+                                                        size="small" 
+                                                        color={
+                                                            item.status === 'Delivered' ? 'success' : 
+                                                            item.status === 'Cancelled' ? 'error' : 
+                                                            item.status === 'Shipped' || item.status === 'Out for Delivery' ? 'primary' : 'warning'
+                                                        }
+                                                        variant="outlined" 
+                                                        sx={{ fontWeight: 'bold', fontSize: '0.7rem', height: 20 }} 
+                                                    />
+                                                </Box>
                                             </Box>
                                         </Box>
                                     ))}

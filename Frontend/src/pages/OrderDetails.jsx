@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Container, Typography, Box, CircularProgress, Paper, Divider, Button, Stepper, Step, StepLabel, Grid } from '@mui/material';
+import { Container, Typography, Box, CircularProgress, Paper, Divider, Button, Stepper, Step, StepLabel, Grid, Chip } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 import { useDialog } from '../context/DialogContext';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -59,11 +59,40 @@ const OrderDetails = () => {
 
     if (!order) return null;
 
-    let currentStepIndex = steps.indexOf(order.orderStatus);
-    if (order.orderStatus === 'Cancelled') {
-        currentStepIndex = -1; // Indicates cancelled, could handle UI differently if needed
+    const orderStatusLevels = {
+        'Processing': 0,
+        'Shipped': 1,
+        'Out for Delivery': 2,
+        'Delivered': 3,
+        'Cancelled': -1
+    };
+
+    let computedStatus = 'Processing';
+    if (order.items && order.items.length > 0) {
+        let minStatus = 3;
+        let allCancelled = true;
+        
+        order.items.forEach(item => {
+            const s = item.status || 'Processing';
+            if (s !== 'Cancelled') {
+                allCancelled = false;
+                if (orderStatusLevels[s] < minStatus) {
+                    minStatus = orderStatusLevels[s];
+                }
+            }
+        });
+        
+        if (allCancelled) {
+            computedStatus = 'Cancelled';
+        } else {
+            computedStatus = Object.keys(orderStatusLevels).find(k => orderStatusLevels[k] === minStatus) || 'Processing';
+        }
     }
 
+    let currentStepIndex = steps.indexOf(computedStatus);
+    if (computedStatus === 'Cancelled') {
+        currentStepIndex = -1; // Indicates cancelled, could handle UI differently if needed
+    }
     return (
         <Container maxWidth="lg" sx={{ py: 6 }}>
             <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/my-orders')} sx={{ mb: 3, color: 'text.secondary' }}>
@@ -87,7 +116,7 @@ const OrderDetails = () => {
                         </Typography>
                         <Divider sx={{ mb: 4 }} />
                         
-                        {order.orderStatus === 'Cancelled' ? (
+                        {computedStatus === 'Cancelled' ? (
                             <Typography variant="h6" color="error" align="center" sx={{ py: 3 }}>
                                 This order has been cancelled.
                             </Typography>
@@ -134,6 +163,19 @@ const OrderDetails = () => {
                                         {item.color && item.size && ' | '}
                                         {item.size && `Size: ${item.size}`}
                                     </Typography>
+                                    <Box sx={{ mt: 1 }}>
+                                        <Chip 
+                                            label={item.status || 'Processing'} 
+                                            size="small" 
+                                            color={
+                                                item.status === 'Delivered' ? 'success' : 
+                                                item.status === 'Cancelled' ? 'error' : 
+                                                item.status === 'Shipped' || item.status === 'Out for Delivery' ? 'primary' : 'warning'
+                                            }
+                                            variant="outlined" 
+                                            sx={{ fontWeight: 'bold' }} 
+                                        />
+                                    </Box>
                                 </Box>
                                 <Box sx={{ textAlign: 'right' }}>
                                     <Typography variant="subtitle1" fontWeight="bold">
