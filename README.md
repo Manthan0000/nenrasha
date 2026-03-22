@@ -7,7 +7,7 @@ A full-stack, comprehensive e-commerce project built using the MERN-ish stack. N
 - **User Authentication**: Secure JWT-based registration and login, along with OTP-based "Forgot Password" functionality via Resend.
 - **Product Management**: Browse, view, and rate products with a 5-star rating system. Real-user testimonials are highlighted.
 - **Admin Order Panel**: Dedicated portal for administrators to view, manage, and update the status of orders at the item level.
-- **Payments**: Integrated payment gateways including PayPal Sandbox Testing and Mock Pay / Razorpay strategies for varied currency usage.
+- **Payments**: Integrated payment gateways including PayPal Sandbox Testing and Mock Pay.
 - **Media**: Built-in Cloudinary ecosystem for smooth product image handling.
 
 ## 🛠 Tech Stack
