@@ -241,7 +241,7 @@ Nenrasha/
 ## 👨‍💻 Author
 
 **Manthan Jasoliya**
-*IIIT Vadodara — Developer | Entrepreneur | AI Enthusiast*
+*IIIT Vadodara — Developer |  AI Enthusiast*
 
 ---
 
