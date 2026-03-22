@@ -7,8 +7,9 @@ import {
 import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
 import VerifiedOutlinedIcon from '@mui/icons-material/VerifiedOutlined';
+import API_BASE from '../config/api';
 
-const API_URL = 'http://localhost:5000/api/auth';
+const API_URL = `${API_BASE}/api/auth`;
 const OTP_LENGTH = 6;
 
 function VerifyOTP() {

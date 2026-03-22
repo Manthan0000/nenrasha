@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Container, Typography, Box, CircularProgress, Paper, Divider, Button, Chip } from '@mui/material';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import API_URL from '../config/api';
 
 const MyOrders = () => {
     const { user } = useAuth();
@@ -20,7 +21,7 @@ const MyOrders = () => {
                 const storedUser = JSON.parse(localStorage.getItem('user'));
                 const token = storedUser?.token || user?.token;
 
-                const res = await fetch(`http://localhost:5000/api/orders`, {
+                const res = await fetch(`${API_URL}/api/orders`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -135,7 +136,7 @@ const MyOrders = () => {
                                             {item.image && (
                                                 <Box 
                                                     component="img"
-                                                    src={item.image.startsWith('http') ? item.image : `http://localhost:5000${item.image}`}
+                                                    src={item.image.startsWith('http') ? item.image : `${API_URL}${item.image}`}
                                                     alt={item.name}
                                                     sx={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 1, border: '1px solid #eee' }}
                                                 />

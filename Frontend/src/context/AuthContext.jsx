@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API_URL from '../config/api';
 
 const AuthContext = createContext();
 
@@ -43,7 +44,7 @@ export const AuthProvider = ({ children }) => {
     if (!user) return { success: false, message: 'Please login to like products' };
 
     try {
-      const response = await fetch(`http://localhost:5000/api/products/${productId}/like`, {
+      const response = await fetch(`${API_URL}/api/products/${productId}/like`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

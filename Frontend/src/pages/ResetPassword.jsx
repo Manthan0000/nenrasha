@@ -10,8 +10,9 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import API_BASE from '../config/api';
 
-const API_URL = 'http://localhost:5000/api/auth';
+const API_URL = `${API_BASE}/api/auth`;
 
 function ResetPassword() {
     const navigate = useNavigate();

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Box, Typography, Grid, Container } from '@mui/material';
 import { Star as StarIcon } from '@mui/icons-material';
+import API_URL from '../config/api';
 
 const Testimonials = () => {
     const [testimonials, setTestimonials] = useState([]);
@@ -12,7 +13,7 @@ const Testimonials = () => {
 
     const fetchTestimonials = async () => {
         try {
-            const res = await fetch('http://localhost:5000/api/reviews/testimonials');
+            const res = await fetch(`${API_URL}/api/reviews/testimonials`);
             const data = await res.json();
             if (data.success) {
                 setTestimonials(data.data);

@@ -3,6 +3,7 @@ import { Box, Typography, Grid, Chip, Select, MenuItem, FormControl, InputLabel,
 import { useState, useEffect } from 'react';
 import Container from '../components/Container';
 import ProductCard from '../components/ProductCard';
+import API_URL from '../config/api';
 
 // Helper to normalize category matching
 const normalizeCategory = (cat) => cat.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -16,7 +17,7 @@ function CategoryPage() {
     const [sortBy, setSortBy] = useState('newest');
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/products')
+        fetch(`${API_URL}/api/products`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {

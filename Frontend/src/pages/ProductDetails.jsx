@@ -26,6 +26,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useDialog } from '../context/DialogContext';
+import API_URL from '../config/api';
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -72,7 +73,7 @@ const ProductDetails = () => {
     const fetchProduct = async () => {
         try {
             setLoading(true);
-            const res = await fetch(`http://localhost:5000/api/products/${id}`);
+            const res = await fetch(`${API_URL}/api/products/${id}`);
             const data = await res.json();
             if (data.success) {
                 const foundProduct = { ...data.data, id: data.data._id };
@@ -90,7 +91,7 @@ const ProductDetails = () => {
     const fetchReviews = async () => {
         try {
             setReviewsLoading(true);
-            const res = await fetch(`http://localhost:5000/api/reviews/product/${id}`);
+            const res = await fetch(`${API_URL}/api/reviews/product/${id}`);
             const data = await res.json();
             if (data.success) {
                 setReviews(data.data);
@@ -113,7 +114,7 @@ const ProductDetails = () => {
         }
         setSubmittingReview(true);
         try {
-            const res = await fetch(`http://localhost:5000/api/reviews/product/${id}`, {
+            const res = await fetch(`${API_URL}/api/reviews/product/${id}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -145,7 +146,7 @@ const ProductDetails = () => {
         }
         setSubmittingReview(true);
         try {
-            const res = await fetch(`http://localhost:5000/api/reviews/${reviewId}`, {
+            const res = await fetch(`${API_URL}/api/reviews/${reviewId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -175,7 +176,7 @@ const ProductDetails = () => {
         const confirmed = await showConfirm('Are you sure you want to delete this review?', { title: 'Delete Review', severity: 'error' });
         if (!confirmed) return;
         try {
-            const res = await fetch(`http://localhost:5000/api/reviews/${reviewId}`, {
+            const res = await fetch(`${API_URL}/api/reviews/${reviewId}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
@@ -221,7 +222,7 @@ const ProductDetails = () => {
         const confirmed = await showConfirm('Are you sure you want to delete this product? This action cannot be undone.', { title: 'Delete Product', severity: 'error' });
         if (!confirmed) return;
         try {
-            const response = await fetch(`http://localhost:5000/api/products/${product.id}`, {
+            const response = await fetch(`${API_URL}/api/products/${product.id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });

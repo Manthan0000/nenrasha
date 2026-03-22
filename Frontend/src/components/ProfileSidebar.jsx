@@ -10,8 +10,9 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import PersonIcon from '@mui/icons-material/Person';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import API_BASE from '../config/api';
 
-const API_URL = 'http://localhost:5000/api/auth';
+const API_URL = `${API_BASE}/api/auth`;
 
 function ProfileSidebar({ open, onClose }) {
   const { user, login, logout } = useAuth();

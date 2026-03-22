@@ -14,6 +14,7 @@ import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ProductCard from '../components/ProductCard';
+import API_URL from '../config/api';
 
 function LikedProducts() {
   const { user } = useAuth();
@@ -33,7 +34,7 @@ function LikedProducts() {
     if (!user) return;
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/products/liked', {
+      const response = await fetch(`${API_URL}/api/products/liked`, {
         headers: {
           'Authorization': `Bearer ${user.token}`
         }

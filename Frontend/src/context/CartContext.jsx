@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import { useAuth } from './AuthContext';
+import API_URL from '../config/api';
 
 const CartContext = createContext();
 
@@ -26,8 +27,7 @@ export const CartProvider = ({ children }) => {
 
       if (!token) return;
 
-      const response = await fetch(`http://localhost:5000/api/cart`, {
-        method: 'GET',
+      const response = await fetch(`${API_URL}/api/cart`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -59,8 +59,7 @@ export const CartProvider = ({ children }) => {
       const storedUser = JSON.parse(localStorage.getItem('user'));
       const token = storedUser?.token || user?.token;
 
-      const response = await fetch(`http://localhost:5000/api/cart`, {
-        method: 'POST',
+      const response = await fetch(`${API_URL}/api/cart`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -88,8 +87,7 @@ export const CartProvider = ({ children }) => {
       const storedUser = JSON.parse(localStorage.getItem('user'));
       const token = storedUser?.token || user?.token;
 
-      const response = await fetch(`http://localhost:5000/api/cart/${itemId}`, {
-        method: 'PUT',
+      const response = await fetch(`${API_URL}/api/cart/${itemId}`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -117,8 +115,7 @@ export const CartProvider = ({ children }) => {
       const storedUser = JSON.parse(localStorage.getItem('user'));
       const token = storedUser?.token || user?.token;
 
-      const response = await fetch(`http://localhost:5000/api/cart/${itemId}`, {
-        method: 'DELETE',
+      const response = await fetch(`${API_URL}/api/cart/${itemId}`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -145,8 +142,7 @@ export const CartProvider = ({ children }) => {
       const storedUser = JSON.parse(localStorage.getItem('user'));
       const token = storedUser?.token || user?.token;
 
-      const response = await fetch(`http://localhost:5000/api/cart`, {
-        method: 'DELETE',
+      const response = await fetch(`${API_URL}/api/cart`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`

@@ -5,6 +5,7 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { useCart } from '../context/CartContext';
 import { Link, useNavigate } from 'react-router-dom';
+import API_URL from '../config/api';
 
 const Cart = () => {
   const { cart, loading, updateQuantity, removeFromCart, getCartTotal, clearCart } = useCart();
@@ -69,7 +70,7 @@ const Cart = () => {
                           {item.product?.image && (
                             <Box 
                               component="img"
-                              src={item.product.image.startsWith('http') ? item.product.image : `http://localhost:5000${item.product.image}`}
+                              src={item.product.image.startsWith('http') ? item.product.image : `${API_URL}${item.product.image}`}
                               alt={item.product.name}
                               sx={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 1 }}
                             />

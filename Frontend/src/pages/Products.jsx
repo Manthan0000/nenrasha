@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Container from '../components/Container';
 import ProductCard from '../components/ProductCard';
+import API_URL from '../config/api';
 
 function Products() {
     const location = useLocation();
@@ -15,7 +16,7 @@ function Products() {
 
     useEffect(() => {
         setLoading(true);
-        fetch(`http://localhost:5000/api/products?sort=${sortBy}`)
+        fetch(`${API_URL}/api/products?sort=${sortBy}`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {

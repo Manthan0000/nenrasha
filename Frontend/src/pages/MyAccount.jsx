@@ -44,6 +44,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import CloseIcon from '@mui/icons-material/Close';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import API_URL from '../config/api';
 
 function MyAccount() {
   const { user, logout, login } = useAuth();
@@ -81,7 +82,7 @@ function MyAccount() {
     if (!user) return;
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/products/liked', {
+      const response = await fetch(`${API_URL}/api/products/liked`, {
         headers: { 'Authorization': `Bearer ${user.token}` }
       });
       const data = await response.json();
@@ -117,7 +118,7 @@ function MyAccount() {
       formData.append('address', editData.address);
       if (editData.profilePhoto) formData.append('profilePhoto', editData.profilePhoto);
 
-      const response = await fetch('http://localhost:5000/api/auth/profile', {
+      const response = await fetch(`${API_URL}/api/auth/profile`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${user.token}` },
         body: formData

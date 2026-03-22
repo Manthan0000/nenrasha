@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDialog } from '../context/DialogContext';
 import SaveIcon from '@mui/icons-material/Save';
 import PayPalCheckout from '../components/PayPalCheckout';
+import API_URL from '../config/api';
 
 const Checkout = () => {
   const { user, login } = useAuth();
@@ -56,7 +57,7 @@ const Checkout = () => {
       const fullAddress = `${addressData.address}, ${addressData.city}, ${addressData.state} - ${addressData.zipCode}`;
       formData.append('address', fullAddress);
 
-      const res = await fetch('http://localhost:5000/api/auth/profile', {
+      const res = await fetch(`${API_URL}/api/auth/profile`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
@@ -85,7 +86,7 @@ const Checkout = () => {
       const token = storedUser?.token || user?.token;
 
       // Save the order in MongoDB only after PayPal confirms payment
-      const response = await fetch('http://localhost:5000/api/orders', {
+      const response = await fetch(`${API_URL}/api/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

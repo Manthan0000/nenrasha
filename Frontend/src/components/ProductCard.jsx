@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useDialog } from '../context/DialogContext';
 import { useState } from 'react';
+import API_URL from '../config/api';
 
 const formatPrice = (priceINR) => {
     return `₹${priceINR.toLocaleString('en-IN')}`;
@@ -35,7 +36,7 @@ function ProductCard({ product }){
     };
     const handleProductClick = () => {
         // Fire and forget visit increment
-        fetch(`http://localhost:5000/api/products/${product.id}/visit`, { method: 'PUT' })
+        fetch(`${API_URL}/api/products/${product.id}/visit`, { method: 'PUT' })
             .catch(err => console.error('Error incrementing visits:', err));
         
         navigate(`/product/${product.id}`);
@@ -46,7 +47,7 @@ function ProductCard({ product }){
         const confirmed = await showConfirm('Are you sure you want to delete this product? This action cannot be undone.', { title: 'Delete Product', severity: 'error' });
         if (confirmed) {
             try {
-                const res = await fetch(`http://localhost:5000/api/products/${product.id}`, {
+                const res = await fetch(`${API_URL}/api/products/${product.id}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${user.token}`

@@ -1,4 +1,5 @@
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
+import API_URL from '../config/api';
 
 /**
  * PayPalCheckout — drop-in PayPal sandbox button component
@@ -14,7 +15,7 @@ const PayPalCheckout = ({ amount, token, onSuccess, onError }) => {
 
   // Step 1 — Create a PayPal order on our backend
   const handleCreateOrder = async () => {
-    const res = await fetch('http://localhost:5000/api/payment/create-order', {
+    const res = await fetch(`${API_URL}/api/payment/create-order`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -29,7 +30,7 @@ const PayPalCheckout = ({ amount, token, onSuccess, onError }) => {
 
   // Step 2 — Capture payment after user approves in PayPal popup
   const handleApprove = async (data) => {
-    const res = await fetch(`http://localhost:5000/api/payment/capture/${data.orderID}`, {
+    const res = await fetch(`${API_URL}/api/payment/capture/${data.orderID}`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}` },
     });

@@ -1,10 +1,10 @@
 import { Box, Typography, Tabs, Tab, IconButton } from '@mui/material';
 import { useState, useRef, useEffect } from 'react';
 import ProductCard from './ProductCard';
-
 import Container from './Container';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import API_URL from '../config/api';
 
 const tabLabels = ['On Sale', 'Trending'];
 
@@ -15,7 +15,7 @@ function ProductTabs() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/products')
+    fetch(`${API_URL}/api/products`)
       .then(res => res.json())
       .then(data => {
         if (data.success) {

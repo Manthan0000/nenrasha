@@ -7,6 +7,7 @@ import ScrollToTop from '../components/ScrollToTop';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import API_URL from '../config/api';
 
 function MyListings() {
   const [products, setProducts] = useState([]);
@@ -24,7 +25,7 @@ function MyListings() {
 
   const fetchMyListings = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/products/my-listings', {
+      const response = await fetch(`${API_URL}/api/products/my-listings`, {
         headers: {
           'Authorization': `Bearer ${user.token}`
         }

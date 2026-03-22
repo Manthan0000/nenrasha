@@ -4,6 +4,7 @@ import { Container, Typography, Box, CircularProgress, Paper, Divider, Button, S
 import { useAuth } from '../context/AuthContext';
 import { useDialog } from '../context/DialogContext';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import API_URL from '../config/api';
 
 const steps = ['Processing', 'Shipped', 'Out for Delivery', 'Delivered'];
 
@@ -26,7 +27,7 @@ const OrderDetails = () => {
                 const storedUser = JSON.parse(localStorage.getItem('user'));
                 const token = storedUser?.token || user?.token;
 
-                const res = await fetch(`http://localhost:5000/api/orders/${id}`, {
+                const res = await fetch(`${API_URL}/api/orders/${id}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -143,7 +144,7 @@ const OrderDetails = () => {
                                 {item.image && (
                                     <Box 
                                         component="img"
-                                        src={item.image.startsWith('http') ? item.image : `http://localhost:5000${item.image}`}
+                                        src={item.image.startsWith('http') ? item.image : `${API_URL}${item.image}`}
                                         alt={item.name}
                                         sx={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 1, border: '1px solid #eee' }}
                                     />

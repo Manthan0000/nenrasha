@@ -4,8 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import { Box, Typography, TextField, Button, Alert, CircularProgress, Container } from '@mui/material';
 import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
+import API_BASE from '../config/api';
 
-const API_URL = 'http://localhost:5000/api/auth';
+const API_URL = `${API_BASE}/api/auth`;
 
 function Login() {
     const navigate = useNavigate();

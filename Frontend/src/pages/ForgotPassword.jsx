@@ -8,8 +8,9 @@ import Footer from '../components/Footer';
 import ScrollToTop from '../components/ScrollToTop';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import LockResetOutlinedIcon from '@mui/icons-material/LockResetOutlined';
+import API_BASE from '../config/api';
 
-const API_URL = 'http://localhost:5000/api/auth';
+const API_URL = `${API_BASE}/api/auth`;
 
 function ForgotPassword() {
     const navigate = useNavigate();

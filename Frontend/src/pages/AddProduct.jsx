@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import { CloudUpload, Add } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
+import API_URL from '../config/api';
 
 const categories = ['Watches & Glasses', 'Shoes', 'Classic', 'Genz', 'Traditional', 'Accessories'];
 const commonSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '7', '8', '9', '10', '11']; 
@@ -43,7 +44,7 @@ function AddProduct() {
     useEffect(() => {
         if (isEdit) {
             setLoading(true);
-            fetch(`http://localhost:5000/api/products/${id}`)
+            fetch(`${API_URL}/api/products/${id}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
@@ -146,8 +147,8 @@ function AddProduct() {
             }
 
             const url = isEdit 
-                ? `http://localhost:5000/api/products/${id}` 
-                : 'http://localhost:5000/api/products';
+                ? `${API_URL}/api/products/${id}` 
+                : `${API_URL}/api/products`;
             
             const method = isEdit ? 'PUT' : 'POST';
 

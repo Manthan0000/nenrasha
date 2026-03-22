@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { useDialog } from '../context/DialogContext';
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import API_URL from '../config/api';
 
 function AdminPendingPanel() {
   const [orders, setOrders] = useState([]);
@@ -30,7 +31,7 @@ function AdminPendingPanel() {
   const fetchSellerOrders = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/orders/seller-orders', {
+      const response = await fetch(`${API_URL}/api/orders/seller-orders`, {
         headers: {
           'Authorization': `Bearer ${user.token}`
         }
@@ -49,7 +50,7 @@ function AdminPendingPanel() {
 
   const handleStatusChange = async (orderId, itemId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/item/${itemId}/status`, {
+      const response = await fetch(`${API_URL}/api/orders/${orderId}/item/${itemId}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
