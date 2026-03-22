@@ -1,96 +1,258 @@
-# Nenrasha - E-Commerce Platform
+<div align="center">
 
-A full-stack, comprehensive e-commerce project built using the MERN-ish stack. Nenrasha includes a robust administrative panel, full purchase flow, multiple payment gateways, product ratings, real-user testimonials, secure authentication with OTP-based password reset, and full complete containerized setups for production and development.
+# 🛒 Nenrasha — E-Commerce Platform
 
-## 🚀 Features
+**A full-stack, production-ready e-commerce system built on the MERN-ish stack.**
+Featuring secure authentication, PayPal payments, an admin order panel, real-user testimonials, and full Docker containerization.
 
-- **User Authentication**: Secure JWT-based registration and login, along with OTP-based "Forgot Password" functionality via Resend.
-- **Product Management**: Browse, view, and rate products with a 5-star rating system. Real-user testimonials are highlighted.
-- **Admin Order Panel**: Dedicated portal for administrators to view, manage, and update the status of orders at the item level.
-- **Payments**: Integrated payment gateways including PayPal Sandbox Testing and Mock Pay.
-- **Media**: Built-in Cloudinary ecosystem for smooth product image handling.
+[![Live Demo](https://img.shields.io/badge/🌐%20Live%20Demo-nenrasha.vercel.app-6c63ff?style=for-the-badge)](https://nenrasha.vercel.app/)
+[![Docker Hub](https://img.shields.io/badge/🐳%20Docker%20Hub-manthan0000-blue?style=for-the-badge&logo=docker)](https://hub.docker.com/u/manthan0000)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=nodedotjs)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/)
+
+</div>
+
+---
+
+## 📋 Table of Contents
+
+- [✨ Features](#-features)
+- [🛠 Tech Stack](#-tech-stack)
+- [🔑 Environment Variables](#-environment-variables)
+- [💻 Running Locally (Without Docker)](#-running-locally-without-docker)
+- [🐳 Running with Docker](#-running-with-docker)
+- [🚀 Docker Hub — Prebuilt Images](#-docker-hub--prebuilt-images)
+- [🏗 Docker Architecture](#-docker-architecture)
+- [🔒 Security Features](#-security-features)
+- [📈 Future Improvements](#-future-improvements)
+- [👨‍💻 Author](#-author)
+
+---
+
+## ✨ Features
+
+| Feature | Description |
+|---|---|
+| 🔐 **User Authentication** | Secure JWT-based registration & login with OTP-driven "Forgot Password" via [Resend](https://resend.com/) |
+| 🛍 **Product Management** | Browse, filter, and view products with a full **5-star rating system** |
+| 💬 **Testimonials** | Real-user reviews surfaced as testimonials across the storefront |
+| 🧑‍💼 **Admin Order Panel** | Dedicated admin portal to view and update order status at the **item level** |
+| 💳 **Payment Gateways** | Integrated **PayPal Sandbox** and **Mock Pay** for flexible checkout testing |
+| 🖼 **Media Management** | Cloudinary-powered image upload, storage, and delivery pipeline |
+| 🐳 **Full Docker Support** | Complete `Dockerfile` + `docker-compose.yml` for both dev and production environments |
+
+---
 
 ## 🛠 Tech Stack
 
 ### Frontend
-- **Core**: React 19 built with Vite
-- **UI & Styling**: Material-UI (MUI), Emotion UI engine
-- **Routing**: React Router DOM (v7)
-- **Integrations**: `@paypal/react-paypal-js` for frontend checkouts
+
+| | Technology |
+|---|---|
+| ⚛️ **Framework** | React 19 (via Vite) |
+| 🎨 **UI Library** | Material-UI (MUI v7) + Emotion engine |
+| 🔀 **Routing** | React Router DOM v7 |
+| 💳 **Payments** | `@paypal/react-paypal-js` |
+| 🚀 **Build & Dev Server** | Vite |
+| 🌐 **Static Serving (Prod)** | Nginx |
 
 ### Backend
-- **Core**: Node.js & Express.js
-- **Database**: MongoDB with Mongoose object modeling
-- **Authentication**: JsonWebToken (JWT) & bcryptjs
-- **Media Uploads**: Multer, streamifier, cloudinary (v2)
-- **Email Delivery**: Resend SDK
-- **Payment Tools**: `@paypal/checkout-server-sdk`
+
+| | Technology |
+|---|---|
+| 🟢 **Runtime** | Node.js with Express.js v5 |
+| 🗄 **Database** | MongoDB + Mongoose ODM |
+| 🔑 **Auth** | JWT (`jsonwebtoken`) + `bcryptjs` |
+| 🖼 **Image Uploads** | Multer + Streamifier + Cloudinary v2 |
+| 📧 **Email Delivery** | Resend SDK |
+| 💰 **Payments** | `@paypal/checkout-server-sdk` |
 
 ---
 
-## 💻 Running the Application Locally (Without Docker)
+## 🔑 Environment Variables
 
-### 1. Backend Setup
-1. Navigate to the `Backend` directory:
-   ```bash
-   cd Backend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Create your `.env` file containing (example):
-   `MONGODB_URI`, `JWT_SECRET`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`, and payment/Resend keys.
-4. Start the Node development server:
-   ```bash
-   npm run dev
-   ```
+Create a `.env` file inside the `Backend/` directory with the following keys:
 
-### 2. Frontend Setup
-1. Navigate to the `Frontend` directory:
-   ```bash
-   cd Frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Optionally configure your environment variables (e.g. `VITE_API_URL`).
-4. Start the Vite development server:
-   ```bash
-   npm run dev
-   ```
-   Open `http://localhost:5173` if it doesn't open automatically.
+```env
+# MongoDB
+MONGO_URL=your_mongodb_connection_string
+
+# Authentication
+JWT_SECRET=your_jwt_secret
+PORT=5000
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# Email (Resend)
+RESEND_API_KEY=your_resend_api_key
+EMAIL=your_sender_email
+
+# PayPal (Sandbox)
+PAYPAL_CLIENT_ID=your_paypal_client_id
+PAYPAL_CLIENT_SECRET=your_paypal_client_secret
+PAYPAL_MODE=sandbox
+```
+
+> **Note:** Never commit your `.env` file to version control. It is already listed in `.gitignore`.
 
 ---
 
-## 🐳 Running with Docker (Recommended)
+## 💻 Running Locally (Without Docker)
 
-Nenrasha is complete with Dockerfiles configured for both the frontend (served via performant Nginx) and the backend (Node 20 alpine).
+### 1. Backend
+
+```bash
+# From the project root
+cd Backend
+npm install
+npm run dev
+```
+
+The backend will start on **http://localhost:5000**
+
+### 2. Frontend
+
+```bash
+# From the project root
+cd Frontend
+npm install
+npm run dev
+```
+
+The frontend will start on **http://localhost:5173**
+
+> **Tip:** Set `VITE_API_URL=http://localhost:5000` in `Frontend/.env` if your backend is running on a custom host/port.
+
+---
+
+## 🐳 Running with Docker
+
+Nenrasha is fully containerized with separate Dockerfiles for the frontend (Nginx-served) and backend (Node 20 Alpine).
 
 ### Prerequisites
-- Docker and Docker Compose installed
-- `Backend/.env` file properly configured.
 
-### Using Docker Compose
-Running the entire application is simple with the robust `docker-compose.yml` file.
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed
+- `Backend/.env` file properly configured (see [Environment Variables](#-environment-variables))
 
-1. In the project root (`Nenrasha`), run the following to build the images and wire up the network automatically:
-   ```bash
-   docker-compose up --build
-   ```
-   *(To run the containers in the background, append `-d`)*
+### Option 1 — Build & Run Locally with Docker Compose
 
-2. Enjoy the live application:
-   - **Frontend**: [http://localhost:3000](http://localhost:3000)
-   - **Backend API**: [http://localhost:5000](http://localhost:5000)
+```bash
+# From the project root — builds images and starts all containers
+docker-compose up --build
 
-### Stopping Containers
-To gracefully shut down the Docker environment:
+# To run in the background (detached mode)
+docker-compose up --build -d
+```
+
+**Access the application:**
+
+| Service | URL |
+|---|---|
+| 🌐 Frontend | http://localhost:3000 |
+| ⚙️ Backend API | http://localhost:5000 |
+
+**Stop all containers:**
+
 ```bash
 docker-compose down
 ```
 
-### 🏗 Docker Architecture Overview
-- **Backend Service** (`nenrasha_backend`): A multi-stage `node:20-alpine` build optimized for production (`npm install --production`), mapped to expose port `5000`.
-- **Frontend Service** (`nenrasha_frontend`): Multi-stage Vite build. It first installs dependencies and renders the production `dist` map, which is subsequently copied to a lightweight **Nginx** runner for high-performance static serving out of port `3000`.
+---
+
+## 🚀 Docker Hub — Prebuilt Images
+
+Nenrasha's images are published to Docker Hub so you can spin up the app **without building locally**.
+
+🔗 **Docker Hub:** [hub.docker.com/u/manthan0000](https://hub.docker.com/u/manthan0000)
+
+### Step 1 — Pull the images
+
+```bash
+docker pull manthan0000/nenrasha-backend
+docker pull manthan0000/nenrasha-frontend
+```
+
+### Step 2 — Run the Backend
+
+```bash
+docker run -d \
+  -p 5000:5000 \
+  --env-file Backend/.env \
+  --name nenrasha_backend \
+  manthan0000/nenrasha-backend
+```
+
+### Step 3 — Run the Frontend
+
+```bash
+docker run -d \
+  -p 3000:80 \
+  --name nenrasha_frontend \
+  manthan0000/nenrasha-frontend
+```
+
+### Step 4 — Access
+
+| Service | URL |
+|---|---|
+| 🌐 Frontend | http://localhost:3000 |
+| ⚙️ Backend API | http://localhost:5000 |
+
+---
+
+## 🏗 Docker Architecture
+
+```
+Nenrasha/
+├── Backend/
+│   └── Dockerfile       → node:20-alpine | production-optimized Node server on :5000
+├── Frontend/
+│   └── Dockerfile       → Vite build → Nginx Alpine static server on :80 (mapped to :3000)
+└── docker-compose.yml   → Orchestrates both services with automatic restart
+```
+
+| Service | Base Image | Build Strategy | Port |
+|---|---|---|---|
+| `nenrasha_backend` | `node:20-alpine` | Install production deps, run Express | `5000` |
+| `nenrasha_frontend` | Multi-stage: `node` → `nginx:alpine` | Vite build, copy `dist/` to Nginx | `3000 → 80` |
+
+---
+
+## 🔒 Security Features
+
+- **JWT Authentication** — Stateless, token-based session management
+- **Password Hashing** — `bcryptjs` with salt rounds for secure storage
+- **OTP Password Reset** — Time-limited OTP delivered via email (Resend)
+- **Protected Routes** — Middleware-guarded API endpoints on the backend
+- **Environment Isolation** — All secrets stored in `.env`, never hardcoded
+
+---
+
+## 📈 Future Improvements
+
+- [ ] Stripe / Razorpay payment integration
+- [ ] AI-based product recommendations
+- [ ] Real-time order tracking (WebSockets)
+- [ ] Advanced analytics dashboard for admins
+- [ ] Mobile-first responsive redesign
+
+---
+
+## 👨‍💻 Author
+
+**Manthan Jasoliya**
+*IIIT Vadodara — Developer | Entrepreneur | AI Enthusiast*
+
+---
+
+<div align="center">
+
+⭐ **If you find this project useful, please star the repository and share it!** ⭐
+
+*Nenrasha is built as a real-world scalable system — covering authentication, payments, admin workflows, and full cloud deployment.*
+
+</div>
