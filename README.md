@@ -2,15 +2,12 @@
 
 # 🛒 Nenrasha — E-Commerce Platform
 
-**A full-stack, production-ready e-commerce system built on the MERN-ish stack.**
+**A full-stack, production-ready e-commerce system built on the FULL stack.**
 Featuring secure authentication, PayPal payments, an admin order panel, real-user testimonials, and full Docker containerization.
+**https://nenrasha.vercel.app/**
 
 [![Live Demo](https://img.shields.io/badge/🌐%20Live%20Demo-nenrasha.vercel.app-6c63ff?style=for-the-badge)](https://nenrasha.vercel.app/)
 [![Docker Hub](https://img.shields.io/badge/🐳%20Docker%20Hub-manthan0000-blue?style=for-the-badge&logo=docker)](https://hub.docker.com/u/manthan0000)
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
-[![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=nodedotjs)](https://nodejs.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/)
-
 </div>
 
 ---
@@ -245,7 +242,7 @@ Nenrasha/
 ## 👨‍💻 Author
 
 **Manthan Jasoliya**
-*IIIT Vadodara — Developer | Entrepreneur | AI Enthusiast*
+*IIIT Vadodara — Developer |  AI Enthusiast*
 
 ---
 
