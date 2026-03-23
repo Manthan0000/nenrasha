@@ -60,6 +60,7 @@ export const CartProvider = ({ children }) => {
       const token = storedUser?.token || user?.token;
 
       const response = await fetch(`${API_URL}/api/cart`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -88,6 +89,7 @@ export const CartProvider = ({ children }) => {
       const token = storedUser?.token || user?.token;
 
       const response = await fetch(`${API_URL}/api/cart/${itemId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -116,6 +118,7 @@ export const CartProvider = ({ children }) => {
       const token = storedUser?.token || user?.token;
 
       const response = await fetch(`${API_URL}/api/cart/${itemId}`, {
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -143,6 +146,7 @@ export const CartProvider = ({ children }) => {
       const token = storedUser?.token || user?.token;
 
       const response = await fetch(`${API_URL}/api/cart`, {
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
