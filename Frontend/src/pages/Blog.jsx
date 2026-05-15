@@ -72,7 +72,7 @@ function Blog() {
               mx: 'auto',
             }}
           >
-            Welcome to our blog. Stay updated with the latest fashion trends, style tips, and news from Nenrasha Store.
+            Welcome to our blog.This is my shop  Stay updated with the latest fashion trends, style tips, and news from Nenrasha Store.
           </Typography>
         </Container>
       </Box>
